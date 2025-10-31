@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Super Admin · Data Overview{% endblock %}
+{% block content %}
+<section class="hero"><div class="hero-bg"></div></section>
+<div class="container">
+  {% for m in get_flashed_messages(with_categories=true) %}
+    <div class="flash {{ m[0] }}">{{ m[1] }}</div>
+  {% endfor %}
+
+  <div class="admin-hero">
+    <span class="badge">Analytics</span>
+    <h1 class="strong">Data Overview</h1>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
+    <div class="panel" style="text-align: center;">
+      <p class="muted" style="margin: 0 0 0.5rem; font-size: 0.9rem;">Total Accounts</p>
+      <h2 style="margin: 0; color: var(--primary);">{{ counts.accounts }}</h2>
+    </div>
+    <div class="panel" style="text-align: center;">
+      <p class="muted" style="margin: 0 0 0.5rem; font-size: 0.9rem;">Total Patients</p>
+      <h2 style="margin: 0; color: var(--primary);">{{ counts.patients }}</h2>
+    </div>
+    <div class="panel" style="text-align: center;">
+      <p class="muted" style="margin: 0 0 0.5rem; font-size: 0.9rem;">Total Dentists</p>
+      <h2 style="margin: 0; color: var(--primary);">{{ counts.dentists }}</h2>
+    </div>
+  </div>
+
+  <div style="margin-top: 2.5rem; padding-bottom: 2rem;">
+    <h2>Latest Appointments</h2>
+    <table class="table glass">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Patient</th>
+          <th>Dentist</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in appointments %}
+        <tr>
+          <td><strong>{{ a.app_id }}</strong></td>
+          <td>{{ a.pat_name }}</td>
+          <td>{{ a.dentist_name }}</td>
+          <td>{{ a.app_date }}</td>
+          <td>{{ a.app_time }}</td>
+          <td>
+            {% if a.app_status == 'Completed' %}
+              <span class="chip" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">{{ a.app_status }}</span>
+            {% elif a.app_status == 'Scheduled' %}
+              <span class="chip" style="background: rgba(18, 130, 255, 0.15); color: var(--secondary);">{{ a.app_status }}</span>
+            {% else %}
+              <span class="chip">{{ a.app_status }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div style="text-align: center; margin-top: 2rem;">
+    <a href="/super-admin" class="btn btn-outline">← Back to Dashboard</a>
+  </div>
+</div>
+{% endblock %}

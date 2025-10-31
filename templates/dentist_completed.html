@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Completed Appointments · DentalCare{% endblock %}
+{% block content %}
+<div class="container">
+  <h1>Completed Appointments</h1>
+  <table class="table">
+    <thead><tr><th>ID</th><th>Patient</th><th>Date</th><th>Time</th><th>Service</th><th>Notes</th></tr></thead>
+    <tbody>
+      {% for a in apps %}
+      <tr>
+        <td>{{ a.app_id }}</td>
+        <td>{{ a.pat_name }}</td>
+        <td>{{ a.app_date }}</td>
+        <td>{{ a.app_time }}</td>
+        <td>{{ a.app_service }}</td>
+        <td>{{ a.app_notes or 'N/A' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Login · DentalCare{% endblock %}
+{% block content %}
+<section class="hero"><div class="hero-bg"></div></section>
+<div class="container narrow">
+  <form method="post" class="form glass" style="max-width: 480px; margin: 2rem auto; padding: 2.5rem;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <h1 style="margin: 0 0 0.5rem;">Welcome Back</h1>
+      <p class="muted">Sign in to your DentalCare account</p>
+    </div>
+
+    {% for m in get_flashed_messages(with_categories=true) %}
+      <div class="flash {{ m[0] }}">{{ m[1] }}</div>
+    {% endfor %}
+
+    <label>Email
+      <input name="email" type="email" placeholder="your@email.com" required>
+    </label>
+    <label>Password
+      <input name="password" type="password" placeholder="••••••••" required>
+    </label>
+    <button class="btn btn-primary" type="submit">Sign in</button>
+
+    <p class="muted">Don't have an account? <a href="/register" style="color: var(--primary); font-weight: 600; text-decoration: none;">Create one</a></p>
+  </form>
+</div>
+{% endblock %}

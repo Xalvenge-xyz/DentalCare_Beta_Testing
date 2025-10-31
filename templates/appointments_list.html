@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Appointments · DentalCare{% endblock %}
+{% block content %}
+<div class="container">
+  <h1>Appointments</h1>
+  <p><a class="btn btn-primary" href="/staff/appointments/schedule">Schedule New</a></p>
+  <table class="table glass">
+    <thead><tr><th>ID</th><th>Patient</th><th>Dentist</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for a in apps %}
+      <tr>
+        <td>{{ a.app_id }}</td>
+        <td>{{ a.pat_name }}</td>
+        <td>{{ a.dentist_name }}</td>
+        <td>{{ a.app_date }}</td>
+        <td>{{ a.app_time }}</td>
+        <td>{{ a.app_status }}</td>
+        <td>
+          {% if a.app_status == 'Scheduled' %}
+          <form method="post" action="/staff/appointments/{{ a.app_id }}/cancel" class="inline" onsubmit="return confirm('Cancel this appointment?')">
+            <button class="btn btn-danger" type="submit">Cancel</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

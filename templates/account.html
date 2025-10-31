@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}My Account · DentalCare{% endblock %}
+{% block content %}
+<div class="container">
+  {% for m in get_flashed_messages(with_categories=true) %}
+    <div class="flash {{ m[0] }}">{{ m[1] }}</div>
+  {% endfor %}
+
+  <div class="admin-hero">
+    <span class="badge">Account</span>
+    <h1 class="strong">Manage Your Profile</h1>
+  </div>
+
+  <div class="grid2" style="gap: 2.5rem;">
+    <form method="post" class="form glass reveal-up">
+      <h3 class="strong">Profile Details</h3>
+      <label>Full name
+        <input name="name" value="{{ user['acc_name'] }}" required>
+      </label>
+      <label>Contact
+        <input name="contact" value="{{ user['acc_contact'] or '' }}">
+      </label>
+      <label>Email (read-only)
+        <input value="{{ user['acc_email'] }}" disabled style="background: rgba(255, 255, 255, 0.5);">
+      </label>
+      <label>Role (read-only)
+        <input value="{{ user['acc_role'] }}" disabled style="background: rgba(255, 255, 255, 0.5);">
+      </label>
+      <label>Status (read-only)
+        <input value="{{ user['acc_status'] }}" disabled style="background: rgba(255, 255, 255, 0.5);">
+      </label>
+      <button class="btn btn-primary" type="submit" style="margin-top: 0.5rem;">Save changes</button>
+    </form>
+
+    <div class="panel reveal-up-delay">
+      <h3 class="strong">Security & Account</h3>
+      <p class="muted" style="margin: 0.5rem 0 1.5rem;">Keep your account protected with a strong password.</p>
+
+      <div class="bullets" style="display: flex; flex-direction: column; gap: 0.75rem; padding-left: 0; margin: 0;">
+        <a href="/account/password" class="btn btn-outline" style="text-align: center; margin-bottom: 0.5rem;">🔒 Change Password</a>
+        <a href="/logout" class="btn btn-danger" style="text-align: center;">🚪 Sign Out</a>
+      </div>
+
+      <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+        <p class="muted" style="font-size: 0.9rem; margin: 0;">Password tips:</p>
+        <ul style="margin: 0.75rem 0 0; padding-left: 1.5rem; color: var(--muted); font-size: 0.9rem;">
+          <li>Use at least 8 characters</li>
+          <li>Include numbers and symbols</li>
+          <li>Avoid personal information</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Register · DentalCare{% endblock %}
+{% block content %}
+<section class="hero"><div class="hero-bg"></div></section>
+<div class="container narrow">
+  <form method="post" class="form glass" style="max-width: 480px; margin: 2rem auto; padding: 2.5rem;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <h1 style="margin: 0 0 0.5rem;">Create Account</h1>
+      <p class="muted">Join DentalCare and manage your clinic</p>
+    </div>
+
+    {% for m in get_flashed_messages(with_categories=true) %}
+      <div class="flash {{ m[0] }}">{{ m[1] }}</div>
+    {% endfor %}
+
+    <label>Full name
+      <input name="name" placeholder="John Doe" required>
+    </label>
+    <label>Email
+      <input name="email" type="email" placeholder="your@email.com" required>
+    </label>
+    <label>Password
+      <input name="password" type="password" placeholder="••••••••" required>
+    </label>
+    <label>Contact
+      <input name="contact" placeholder="(555) 000-0000">
+    </label>
+    <label>Role
+      <select name="role" id="role-select" required>
+        <option value="Staff">Staff</option>
+        <option value="Dentist">Dentist</option>
+      </select>
+    </label>
+    <label id="specialty-label" style="display:none">Specialty
+      <input name="specialty" id="specialty-input" placeholder="General Dentistry">
+    </label>
+
+    <button class="btn btn-primary" type="submit">Create account</button>
+
+    <p class="muted">Already registered? <a href="/login" style="color: var(--primary); font-weight: 600; text-decoration: none;">Sign in</a></p>
+  </form>
+
+  <script>
+    (function(){
+      const role = document.getElementById('role-select');
+      const specLabel = document.getElementById('specialty-label');
+      const specInput = document.getElementById('specialty-input');
+      const sync = () => {
+        const isDentist = role.value === 'Dentist';
+        specLabel.style.display = isDentist ? 'grid' : 'none';
+        specInput.disabled = !isDentist;
+        if (!isDentist) specInput.value = '';
+      };
+      role.addEventListener('change', sync);
+      document.addEventListener('DOMContentLoaded', sync);
+      sync();
+    })();
+  </script>
+</div>
+{% endblock %}

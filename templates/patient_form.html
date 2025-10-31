@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}{{ patient and 'Edit' or 'Add' }} Patient · DentalCare{% endblock %}
+{% block content %}
+<div class="container narrow">
+  <h1>{{ patient and 'Edit' or 'Add' }} Patient</h1>
+  <form method="post" class="form">
+    <label>Name<input name="name" value="{{ patient.pat_name if patient }}" required></label>
+    <label>Age<input name="age" type="number" value="{{ patient.pat_age if patient }}" required></label>
+    <label>Sex
+      <select name="sex">
+        <option value="M" {% if patient and patient.pat_sex=='M' %}selected{% endif %}>M</option>
+        <option value="F" {% if patient and patient.pat_sex=='F' %}selected{% endif %}>F</option>
+      </select>
+    </label>
+    <label>Contact<input name="contact" value="{{ patient.pat_contact if patient }}"></label>
+    <label>Address<input name="address" value="{{ patient.pat_address if patient }}"></label>
+    <button class="btn btn-primary" type="submit">Save</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Dentist Schedules · DentalCare{% endblock %}
+{% block content %}
+<div class="container">
+  <h1>Dentist Schedules</h1>
+  <table class="table">
+    <thead><tr><th>ID</th><th>Name</th><th>Specialty</th><th>Start</th><th>End</th><th>Work Days</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for d in dentists %}
+      <tr>
+        <td>{{ d.acc_id }}</td>
+        <td>{{ d.acc_name }}</td>
+        <td>{{ d.specialty or 'Not set' }}</td>
+        <td>{{ d.work_start or '-' }}</td>
+        <td>{{ d.work_end or '-' }}</td>
+        <td>{{ d.work_days or '-' }}</td>
+        <td><a class="btn btn-outline" href="/staff/dentists/{{ d.acc_id }}/schedule">Edit</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Super Admin · Logs{% endblock %}
+{% block content %}
+<section class="hero"><div class="hero-bg"></div></section>
+<div class="container">
+  {% for m in get_flashed_messages(with_categories=true) %}
+    <div class="flash {{ m[0] }}">{{ m[1] }}</div>
+  {% endfor %}
+
+  <div class="admin-hero">
+    <span class="badge">Monitoring</span>
+    <h1 class="strong">Activity Logs</h1>
+  </div>
+
+  <form method="get" class="form glass" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: flex-end; margin-bottom: 2rem;">
+    <label>Role
+      <select name="role">
+        <option value="">All Roles</option>
+        <option>Admin</option>
+        <option>Staff</option>
+        <option>Dentist</option>
+        <option>Super Admin</option>
+        <option>Public</option>
+      </select>
+    </label>
+    <label>Action
+      <input name="action" placeholder="e.g., appointment_schedule" value="{{ request.args.get('action','') }}" />
+    </label>
+    <button class="btn btn-primary" type="submit">Filter</button>
+  </form>
+
+  <table class="table glass">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Actor</th>
+        <th>Role</th>
+        <th>Action</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for l in logs %}
+        <tr>
+          <td>
+            <span class="muted" style="font-size: 0.9rem;">{{ l.created_at }}</span>
+          </td>
+          <td>
+            <strong>{{ l.acc_name or l.actor_id or '—' }}</strong>
+          </td>
+          <td>
+            <span class="chip">{{ l.actor_role }}</span>
+          </td>
+          <td>
+            {{ l.action }}
+          </td>
+          <td>
+            <span class="muted">{{ l.details or '—' }}</span>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if logs|length == 0 %}
+    <div style="text-align: center; padding: 2rem; color: var(--muted);">
+      <p>No activity logs found.</p>
+    </div>
+  {% endif %}
+
+  <div style="text-align: center; margin-top: 2rem; padding-bottom: 2rem;">
+    <a href="/super-admin" class="btn btn-outline">← Back to Dashboard</a>
+  </div>
+</div>
+{% endblock %}

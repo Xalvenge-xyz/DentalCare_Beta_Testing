@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Patients · DentalCare{% endblock %}
+{% block content %}
+<div class="container">
+  <h1>Patients</h1>
+  <div class="admin-hero">
+    <a class="btn" href="/account/password">Change Password</a>
+  </div>
+  <p><a class="btn btn-primary" href="/staff/patients/add">Add Patient</a></p>
+  <table class="table glass">
+    <thead><tr><th>ID</th><th>Name</th><th>Age</th><th>Sex</th><th>Contact</th><th>Address</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for p in patients %}
+      <tr>
+        <td>{{ p.pat_id }}</td>
+        <td>{{ p.pat_name }}</td>
+        <td>{{ p.pat_age }}</td>
+        <td>{{ p.pat_sex }}</td>
+        <td>{{ p.pat_contact }}</td>
+        <td>{{ p.pat_address }}</td>
+        <td>
+          <a class="btn btn-outline" href="/staff/patients/{{ p.pat_id }}/edit">Edit</a>
+          <form method="post" action="/staff/patients/{{ p.pat_id }}/delete" class="inline" onsubmit="return confirm('Delete this patient?')">
+            <button class="btn btn-danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

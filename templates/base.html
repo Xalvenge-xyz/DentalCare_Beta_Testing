@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}DentalCare{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a href="/" class="brand"><span class="logo">🦷</span><span>DentalCare</span></a>  
+      <nav>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        {% if user %}
+          <a href="/portal">Portal</a>
+          <a href="/account">My Account</a>
+          <a href="/logout"  class="btn">Logout</a>
+        {% else %}
+          <a href="/login" class="btn">Login</a>
+          <a href="/register" class="btn">Register</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main">
+    {% block content %}{% endblock %}
+  </main>
+  <script>
+    // Simple reveal on scroll
+    const reveal = () => {
+      document.querySelectorAll('.reveal-up, .reveal-up-delay').forEach(el=>{
+        const r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight - 80) el.classList.add('visible');
+      });
+    };
+    window.addEventListener('scroll', reveal, { passive: true });
+    window.addEventListener('load', reveal);
+  </script>
+
+  <footer class="site-footer glass">
+    <div class="container footer">
+      <p>© DentalCare. All rights reserved.</p>
+      <div class="links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

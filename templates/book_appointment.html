@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block title %}Book Appointment · DentalCare{% endblock %}
+{% block content %}
+<section class="hero"><div class="hero-bg"></div></section>
+<div class="container">
+  {% for m in get_flashed_messages(with_categories=true) %}
+    <div class="flash {{ m[0] }}">{{ m[1] }}</div>
+  {% endfor %}
+
+  <div class="admin-hero" style="margin-bottom: 2rem;">
+    <span class="badge">Appointment</span>
+    <h1 class="strong" style="margin: 0;">Schedule Your Visit</h1>
+  </div>
+
+  <div style="max-width: 720px; margin: 0 auto;">
+    <form method="post" class="form glass" style="padding: 2.5rem;">
+      <div class="grid2" style="gap: 2rem;">
+        <!-- Left Column: Form Fields -->
+        <div>
+          <h3 style="margin-top: 0; color: var(--fg);">Your Information</h3>
+
+          <label>Full name
+            <input name="name" placeholder="John Doe" required>
+          </label>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <label>Contact
+              <input name="contact" placeholder="(555) 000-0000" required>
+            </label>
+            <label>Age
+              <input type="number" name="age" min="0" max="150" placeholder="Age" required>
+            </label>
+          </div>
+
+          <h3 style="margin-top: 2rem; color: var(--fg);">Appointment Details</h3>
+
+          <label>Select Dentist
+            <select name="dentist_id" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
+              <option value="">Choose a dentist...</option>
+              {% for d in dentists %}
+              <option value="{{ d.acc_id }}">{{ d.acc_name }}</option>
+              {% endfor %}
+            </select>
+          </label>
+
+          <label>Preferred Date
+            <input type="date" name="app_date" min="{{ min_date }}" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
+          </label>
+
+          <label>Select Time
+            <select name="app_time" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
+              <option value="">Select a time...</option>
+              <option value="09:00">09:00 AM</option>
+              <option value="09:30">09:30 AM</option>
+              <option value="10:00">10:00 AM</option>
+              <option value="10:30">10:30 AM</option>
+              <option value="11:00">11:00 AM</option>
+              <option value="11:30">11:30 AM</option>
+              <option value="13:00">1:00 PM</option>
+              <option value="13:30">1:30 PM</option>
+              <option value="14:00">2:00 PM</option>
+              <option value="14:30">2:30 PM</option>
+              <option value="15:00">3:00 PM</option>
+              <option value="15:30">3:30 PM</option>
+            </select>
+          </label>
+
+          <label>Service Type
+            <select name="app_service" style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
+              <option value="Dental Checkup">Dental Checkup</option>
+              <option value="Cleaning">Cleaning</option>
+              <option value="Filling">Filling</option>
+              <option value="Root Canal">Root Canal</option>
+              <option value="Extraction">Extraction</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+        </div>
+
+        <!-- Right Column: Summary & CTA -->
+        <div>
+          <div style="position: sticky; top: 100px;">
+            <div class="panel" style="background: linear-gradient(135deg, rgba(0, 167, 167, 0.1), rgba(18, 130, 255, 0.08)); border: 1px solid rgba(0, 167, 167, 0.2); margin-bottom: 1.5rem;">
+              <h3 style="margin-top: 0; color: var(--fg);">Appointment Summary</h3>
+
+              <div style="display: grid; gap: 1rem; color: var(--muted); font-size: 0.95rem;">
+                <div style="padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 0.5rem;">
+                  <p style="margin: 0 0 0.25rem; font-size: 0.8rem; color: var(--muted);">Patient</p>
+                  <p id="summary-name" style="margin: 0; font-weight: 600; color: var(--fg);">—</p>
+                </div>
+
+                <div style="padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 0.5rem;">
+                  <p style="margin: 0 0 0.25rem; font-size: 0.8rem; color: var(--muted);">Dentist</p>
+                  <p id="summary-dentist" style="margin: 0; font-weight: 600; color: var(--fg);">—</p>
+                </div>
+
+                <div style="padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 0.5rem;">
+                  <p style="margin: 0 0 0.25rem; font-size: 0.8rem; color: var(--muted);">Date & Time</p>
+                  <p id="summary-datetime" style="margin: 0; font-weight: 600; color: var(--fg);">—</p>
+                </div>
+
+                <div style="padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 0.5rem;">
+                  <p style="margin: 0 0 0.25rem; font-size: 0.8rem; color: var(--muted);">Service</p>
+                  <p id="summary-service" style="margin: 0; font-weight: 600; color: var(--fg);">—</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="background: rgba(0, 167, 167, 0.1); border: 1px solid rgba(0, 167, 167, 0.2); border-radius: 0.8rem; padding: 1rem; margin-bottom: 1.5rem;">
+              <p style="margin: 0 0 0.5rem; font-weight: 600; color: var(--fg);">💳 Payment Required</p>
+              <h2 style="margin: 0; color: var(--primary);">₱50.00</h2>
+              <p style="margin: 0.5rem 0 0; font-size: 0.85rem; color: var(--muted);">Consultation fee</p>
+            </div>
+
+            <button class="btn btn-primary" type="submit" style="width: 100%;">Proceed to Payment</button>
+
+            <p style="text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 1rem;">
+              <a href="/" style="color: var(--primary); text-decoration: none;">← Back to home</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const nameInput = document.querySelector('input[name="name"]');
+    const dentistSelect = document.querySelector('select[name="dentist_id"]');
+    const dateInput = document.querySelector('input[name="app_date"]');
+    const timeSelect = document.querySelector('select[name="app_time"]');
+    const serviceSelect = document.querySelector('select[name="app_service"]');
+
+    const summaryName = document.getElementById('summary-name');
+    const summaryDentist = document.getElementById('summary-dentist');
+    const summaryDateTime = document.getElementById('summary-datetime');
+    const summaryService = document.getElementById('summary-service');
+
+    const updateSummary = () => {
+      summaryName.textContent = nameInput.value || '—';
+
+      const dentistOption = dentistSelect.options[dentistSelect.selectedIndex];
+      summaryDentist.textContent = dentistOption.value ? dentistOption.text : '—';
+
+      if (dateInput.value && timeSelect.value) {
+        const date = new Date(dateInput.value);
+        const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        const timeStr = timeSelect.options[timeSelect.selectedIndex].text;
+        summaryDateTime.textContent = `${dateStr}, ${timeStr}`;
+      } else {
+        summaryDateTime.textContent = '—';
+      }
+
+      summaryService.textContent = serviceSelect.options[serviceSelect.selectedIndex].text || '—';
+    };
+
+    nameInput.addEventListener('input', updateSummary);
+    dentistSelect.addEventListener('change', updateSummary);
+    dateInput.addEventListener('change', updateSummary);
+    timeSelect.addEventListener('change', updateSummary);
+    serviceSelect.addEventListener('change', updateSummary);
+
+    updateSummary();
+  </script>
+</div>
+{% endblock %}

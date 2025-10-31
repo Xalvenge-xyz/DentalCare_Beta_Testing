@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Edit Dentist Schedule · DentalCare{% endblock %}
+{% block content %}
+<div class="container narrow">
+  <h1>Edit Schedule — {{ dentist.acc_name }}</h1>
+  <form method="post" class="form">
+    <label>Specialty<input name="specialty" value="{{ dentist.specialty or '' }}" placeholder="General Dentistry"></label>
+    <label>Start Time (HH:mm)<input name="work_start" value="{{ dentist.work_start or '08:00' }}" required></label>
+    <label>End Time (HH:mm)<input name="work_end" value="{{ dentist.work_end or '17:00' }}" required></label>
+    <label>Work Days<input name="work_days" value="{{ dentist.work_days or 'Monday,Tuesday,Wednesday,Thursday,Friday' }}" required></label>
+    <button class="btn btn-primary" type="submit">Save</button>
+  </form>
+</div>
+{% endblock %}

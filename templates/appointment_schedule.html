@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Schedule Appointment · DentalCare{% endblock %}
+{% block content %}
+<div class="container narrow">
+  <h1>Schedule Appointment</h1>
+  {% for m in get_flashed_messages(with_categories=true) %}
+    <div class="flash {{ m[0] }}">{{ m[1] }}</div>
+  {% endfor %}
+  <form method="post" class="form">
+    <label>Patient
+      <select name="patient_id">
+        {% for p in patients %}
+          <option value="{{ p.pat_id }}">{{ p.pat_name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Dentist
+      <select name="dentist_id">
+        {% for d in dentists %}
+          <option value="{{ d.acc_id }}">{{ d.acc_name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Date<input type="date" name="app_date" required></label>
+    <label>Time (HH:MM)<input type="time" name="app_time" required></label>
+    <label>Service<input name="app_service" placeholder="Dental Checkup"></label>
+    <button class="btn btn-primary" type="submit">Schedule</button>
+  </form>
+</div>
+{% endblock %}

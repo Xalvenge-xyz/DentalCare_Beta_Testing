@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Dentist Dashboard · DentalCare{% endblock %}
+{% block content %}
+<section class="hero"><div class="hero-bg"></div></section>
+<div class="container">
+  {% for m in get_flashed_messages(with_categories=true) %}
+    <div class="flash {{ m[0] }}">{{ m[1] }}</div>
+  {% endfor %}
+
+  <div class="admin-hero">
+    <span class="badge">Dashboard</span>
+    <h1 class="strong">My Upcoming Appointments</h1>
+  </div>
+
+  <div class="dashboard-grid">
+    <a href="#appointments" class="dashboard-card">
+      <h3>📋 Scheduled</h3>
+      <p>Appointments awaiting completion</p>
+    </a>
+    <a href="/dentist/completed" class="dashboard-card">
+      <h3>✓ Completed</h3>
+      <p>View completed appointments</p>
+    </a>
+    <a href="/account" class="dashboard-card">
+      <h3>⚙️ My Account</h3>
+      <p>Manage your profile settings</p>
+    </a>
+  </div>
+
+  <div id="appointments" style="margin-top: 2rem; padding-bottom: 2rem;">
+    <h2>Pending Appointments</h2>
+    <table class="table glass">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Patient</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Service</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in apps %}
+        <tr>
+          <td><strong>{{ a.app_id }}</strong></td>
+          <td>{{ a.pat_name }}</td>
+          <td>{{ a.app_date }}</td>
+          <td>{{ a.app_time }}</td>
+          <td>{{ a.app_service }}</td>
+          <td><span class="chip" style="background: rgba(18, 130, 255, 0.15); color: var(--secondary);">{{ a.app_status }}</span></td>
+          <td>
+            <form method="post" action="/dentist/complete" style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="hidden" name="app_id" value="{{ a.app_id }}" />
+              <input name="notes" placeholder="Notes" style="padding: 0.5rem; border-radius: 0.4rem; border: 1px solid var(--border); font-size: 0.9rem; width: 150px;">
+              <button class="btn btn-primary" type="submit" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; white-space: nowrap;">Complete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

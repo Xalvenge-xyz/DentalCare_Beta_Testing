@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}DentalCare · Home{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="container grid2">
+    <div class="reveal-up">
+      <span class="badge">Modern Dental Appointment System</span>
+      <h1>Smile management made simple</h1>
+      <p class="lead">Convert your legacy system into a modern, secure web app. Book, manage and complete dental appointments with role-based portals for Staff, Admins, and Dentists — professional and easy.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="/book">Book an appointment</a>
+        <a class="btn btn-outline" href="#features">Explore features</a>
+      </div>
+      <ul class="bullets">
+        <li>Role-based access</li>
+        <li>Patient records</li>
+        <li>Smart scheduling</li>
+        <li>Reports & approvals</li>
+      </ul>
+    </div>
+    <div class="hero-visual reveal-up-delay">
+      <img class="hero-img" alt="Dentist examining teeth" src="https://images.pexels.com/photos/6627526/pexels-photo-6627526.jpeg" />
+      <div class="card float-card">
+        <div class="row">
+          <div>
+            <p class="muted">Next available</p>
+            <p class="strong">Today, 2:30 PM</p>
+          </div>
+          <span class="chip">30 min slots</span>
+        </div>
+        <div class="slots">
+          {% for t in ['09:00','09:30','10:00','10:30','11:00','11:30','13:00','13:30','14:00','14:30','15:00','15:30'] %}
+            <button class="slot">{{ t }}</button>
+          {% endfor %}
+        </div>
+        <a class="btn btn-primary block" href="/book">Book now</a>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="features" class="section">
+  <div class="container center">
+    <h2>Everything you need for a modern clinic</h2>
+    <p class="muted">Built from your original flow: authentication, approvals, patients, dentists, schedules, and appointment lifecycle.</p>
+  </div>
+  <div class="container grid3">
+    {% for f in [
+      {'title':'Account roles','desc':'Super Admin, Admin, Staff, Dentist with approvals and status controls.'},
+      {'title':'Scheduling','desc':'Working hours, work days, time slots, conflicts checks, cancellations.'},
+      {'title':'Patients','desc':'CRUD with contact details and medical notes support.'},
+      {'title':'Dentist schedules','desc':'Per-dentist specialty, availability windows, and reporting.'},
+      {'title':'Reports','desc':'Summary by status and filtering.'},
+      {'title':'Secure','desc':'Modern UI for a professional experience.'}
+    ] %}
+      <div class="feature-card">
+        <h3>{{ f.title }}</h3>
+        <p class="muted">{{ f.desc }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% endblock %}
