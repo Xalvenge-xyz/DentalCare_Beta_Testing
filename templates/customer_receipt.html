@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block title %}Receipt #{{ appointment.app_id }} · DentalCare{% endblock %}
+{% block content %}
+<div class="hero"><div class="hero-bg"></div></div>
+<div class="container narrow">
+  <div style="max-width: 700px; margin: 2rem auto; background: white; color: #1f2937; padding: 2rem; border-radius: 0.8rem;">
+    <!-- Header -->
+    <div style="text-align: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 2rem; margin-bottom: 2rem;">
+      <h1 style="margin: 0; color: #1f2937; font-size: 1.8rem;">DentalCare</h1>
+      <p style="margin: 0.5rem 0 0; color: #6b7280; font-size: 0.9rem;">Professional Dental Services</p>
+      <p style="margin: 0.5rem 0 0; color: #6b7280; font-size: 0.9rem;">📞 {{ appointment.dentist_contact }}</p>
+    </div>
+
+    <!-- Receipt Title -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <h2 style="margin: 0 0 0.5rem; color: #1f2937;">OFFICIAL RECEIPT</h2>
+      <p style="margin: 0; color: #6b7280; font-size: 0.9rem;">Receipt No. RCP-{{ appointment.app_id }}</p>
+    </div>
+
+    <!-- Patient Information -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+      <div>
+        <p style="margin: 0 0 0.5rem; color: #6b7280; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Patient Information</p>
+        <p style="margin: 0; color: #1f2937; font-weight: 500;">{{ appointment.pat_name }}</p>
+        <p style="margin: 0.3rem 0 0; color: #6b7280; font-size: 0.9rem;">📧 {{ appointment.pat_contact }}</p>
+        <p style="margin: 0.3rem 0 0; color: #6b7280; font-size: 0.9rem;">📍 {{ appointment.pat_address }}</p>
+      </div>
+      <div>
+        <p style="margin: 0 0 0.5rem; color: #6b7280; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Service Provider</p>
+        <p style="margin: 0; color: #1f2937; font-weight: 500;">Dr. {{ appointment.dentist_name }}</p>
+        <p style="margin: 0.3rem 0 0; color: #6b7280; font-size: 0.9rem;">Dental Professional</p>
+      </div>
+    </div>
+
+    <!-- Appointment Details -->
+    <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 2rem;">
+      <h3 style="margin: 0 0 1rem; color: #1f2937; font-size: 1rem;">Appointment Details</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <p style="margin: 0; color: #6b7280; font-size: 0.8rem; font-weight: 600;">Appointment Date</p>
+          <p style="margin: 0.3rem 0 0; color: #1f2937; font-weight: 500; font-size: 1rem;">{{ appointment.app_date }}</p>
+        </div>
+        <div>
+          <p style="margin: 0; color: #6b7280; font-size: 0.8rem; font-weight: 600;">Appointment Time</p>
+          <p style="margin: 0.3rem 0 0; color: #1f2937; font-weight: 500; font-size: 1rem;">{{ appointment.app_time }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service & Payment -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
+      <thead>
+        <tr style="border-bottom: 2px solid #e5e7eb;">
+          <th style="text-align: left; padding: 0.75rem 0; color: #6b7280; font-weight: 600; font-size: 0.9rem;">Service</th>
+          <th style="text-align: right; padding: 0.75rem 0; color: #6b7280; font-weight: 600; font-size: 0.9rem;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid #e5e7eb;">
+          <td style="padding: 1rem 0; color: #1f2937;">{{ appointment.app_service }}</td>
+          <td style="padding: 1rem 0; text-align: right; color: #1f2937; font-weight: 500;">₱{{ "%.2f"|format(appointment.app_service_price) }}</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td style="padding: 1rem 0; color: #1f2937; font-weight: 700; border-top: 2px solid #e5e7eb;">TOTAL AMOUNT</td>
+          <td style="padding: 1rem 0; text-align: right; color: #1f2937; font-weight: 700; border-top: 2px solid #e5e7eb; font-size: 1.2rem;">₱{{ "%.2f"|format(appointment.app_service_price) }}</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <!-- Payment Information -->
+    <div style="background: #f0fdf4; border: 1px solid #dcfce7; border-radius: 0.5rem; padding: 1rem; margin-bottom: 2rem;">
+      <p style="margin: 0; color: #1f2937; font-weight: 600;">✓ Payment Confirmed</p>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.75rem;">
+        <div>
+          <p style="margin: 0; color: #6b7280; font-size: 0.8rem;">Payment Method</p>
+          <p style="margin: 0.3rem 0 0; color: #1f2937; font-weight: 500;">{{ appointment.payment_method }}</p>
+        </div>
+        <div>
+          <p style="margin: 0; color: #6b7280; font-size: 0.8rem;">Transaction Date</p>
+          <p style="margin: 0.3rem 0 0; color: #1f2937; font-weight: 500;">{{ appointment.created_at }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="border-top: 1px solid #e5e7eb; padding-top: 2rem; text-align: center;">
+      <p style="margin: 0; color: #6b7280; font-size: 0.85rem;">Thank you for choosing DentalCare!</p>
+      <p style="margin: 0.5rem 0 0; color: #6b7280; font-size: 0.85rem;">This is an official receipt for your dental appointment payment.</p>
+      <p style="margin: 1rem 0 0; color: #9ca3af; font-size: 0.75rem;">Receipt generated on {{ appointment.created_at }}</p>
+    </div>
+
+    <!-- Print & Download -->
+    <div style="text-align: center; margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+      <button onclick="window.print()" class="btn btn-primary" style="padding: 0.75rem 1.5rem; cursor: pointer;">🖨️ Print Receipt</button>
+      <a href="/customer" class="btn btn-outline" style="padding: 0.75rem 1.5rem; text-decoration: none;">Back to Dashboard</a>
+    </div>
+  </div>
+
+  <style>
+    @media print {
+      body { background: white; }
+      .hero, .container > div:last-child { display: none; }
+      a { color: #1f2937; text-decoration: underline; }
+    }
+  </style>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Booking Confirmed · DentalCare{% endblock %}
+{% block content %}
+<section class="hero"><div class="hero-bg"></div></section>
+<div class="container narrow">
+  <div style="max-width: 600px; margin: 2rem auto;">
+    <!-- Success Message -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <div style="width: 80px; height: 80px; background: rgba(34, 197, 94, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 3rem;">✓</div>
+      <h1 style="margin: 0 0 0.5rem; color: var(--success);">Payment Successful!</h1>
+      <p class="muted">Your appointment has been booked and is pending staff approval.</p>
+    </div>
+
+    <!-- Appointment Details Card -->
+    <div class="panel glass" style="margin-bottom: 2rem;">
+      <h3 style="margin-top: 0; color: var(--fg);">Appointment Details</h3>
+
+      <div style="display: grid; gap: 1rem;">
+        <div style="padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 0.5rem;">
+          <p style="margin: 0 0 0.25rem; font-size: 0.8rem; color: var(--muted);">Confirmation Number</p>
+          <p style="margin: 0; font-weight: 700; color: var(--primary); font-size: 1.1rem;">APP-{{ appointment.app_id }}</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div style="padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 0.5rem;">
+            <p style="margin: 0 0 0.25rem; font-size: 0.8rem; color: var(--muted);">Date</p>
+            <p style="margin: 0; font-weight: 600; color: var(--fg);">{{ appointment.app_date }}</p>
+          </div>
+          <div style="padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 0.5rem;">
+            <p style="margin: 0 0 0.25rem; font-size: 0.8rem; color: var(--muted);">Time</p>
+            <p style="margin: 0; font-weight: 600; color: var(--fg);">{{ appointment.app_time }}</p>
+          </div>
+        </div>
+
+        <div style="padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 0.5rem;">
+          <p style="margin: 0 0 0.25rem; font-size: 0.8rem; color: var(--muted);">Dentist</p>
+          <p style="margin: 0; font-weight: 600; color: var(--fg);">{{ appointment.dentist_name }}</p>
+        </div>
+
+        <div style="padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 0.5rem;">
+          <p style="margin: 0 0 0.25rem; font-size: 0.8rem; color: var(--muted);">Service</p>
+          <p style="margin: 0; font-weight: 600; color: var(--fg);">{{ appointment.app_service }}</p>
+        </div>
+
+        <div style="padding: 0.75rem; background: rgba(34, 197, 94, 0.1); border-radius: 0.5rem; border: 1px solid rgba(34, 197, 94, 0.2);">
+          <p style="margin: 0 0 0.25rem; font-size: 0.8rem; color: var(--muted);">Payment Status</p>
+          <p style="margin: 0; font-weight: 600; color: var(--success);">✓ Paid via {{ appointment.payment_method }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Alert -->
+    <div style="background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.2); border-radius: 0.8rem; padding: 1rem; margin-bottom: 2rem;">
+      <p style="margin: 0 0 0.5rem; font-weight: 600; color: #ca8a04;">⏳ Pending Approval</p>
+      <p style="margin: 0; font-size: 0.9rem; color: var(--muted);">Our staff will review your appointment and contact you shortly at <strong>{{ appointment.pat_contact }}</strong> to confirm.</p>
+    </div>
+
+    <!-- Create Account CTA -->
+    {% if not user %}
+    <div class="form glass" style="padding: 1.5rem; margin-bottom: 2rem;">
+      <h3 style="margin-top: 0; color: var(--fg);">Create Account to Track Your Appointment</h3>
+      <p class="muted" style="margin-bottom: 1rem;">Sign up now to:</p>
+      <ul style="margin: 0 0 1.5rem; padding-left: 1.5rem; color: var(--muted);">
+        <li>View your appointment status in real-time</li>
+        <li>Receive reminders before your appointment</li>
+        <li>Manage multiple appointments easily</li>
+        <li>View your dental history and receipts</li>
+      </ul>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+        <a href="/register?create_from_booking={{ appointment.app_id }}&name={{ appointment.pat_name }}&contact={{ appointment.pat_contact }}" class="btn btn-primary" style="text-align: center;">Create Account</a>
+        <a href="/" class="btn btn-outline" style="text-align: center;">Continue as Guest</a>
+      </div>
+    </div>
+    {% else %}
+    <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 0.8rem; padding: 1rem; margin-bottom: 2rem;">
+      <p style="margin: 0; color: var(--success); font-weight: 600;">✓ Your account is set up. You can track your appointments in your portal.</p>
+    </div>
+    {% endif %}
+
+    <!-- Next Steps -->
+    <div style="background: rgba(18, 130, 255, 0.1); border: 1px solid rgba(18, 130, 255, 0.2); border-radius: 0.8rem; padding: 1rem; margin-bottom: 2rem;">
+      <h4 style="margin: 0 0 0.75rem; color: var(--fg);">📌 Next Steps</h4>
+      <ol style="margin: 0; padding-left: 1.5rem; color: var(--muted); font-size: 0.95rem;">
+        <li style="margin-bottom: 0.5rem;">Check your email for a confirmation</li>
+        <li style="margin-bottom: 0.5rem;">Staff will approve and confirm your appointment</li>
+        <li>You'll receive a reminder 24 hours before your appointment</li>
+      </ol>
+    </div>
+
+    <p style="text-align: center; margin-bottom: 1rem;">
+      <a href="/" class="btn btn-outline">Back to Home</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

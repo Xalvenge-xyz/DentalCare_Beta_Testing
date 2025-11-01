@@ -3,7 +3,7 @@
 {% block content %}
 <section class="hero"><div class="hero-bg"></div></section>
 <div class="container narrow">
-  <div class="form glass" style="max-width: 500px; margin: 2rem auto; padding: 2.5rem;">
+  <div class="form glass" style="max-width: 520px; margin: 2rem auto; padding: 2.5rem;">
     <div style="text-align: center; margin-bottom: 2rem;">
       <h1 style="margin: 0 0 0.5rem;">Secure Payment</h1>
       <p class="muted">Complete your appointment booking</p>
@@ -18,49 +18,81 @@
       <div style="display: grid; gap: 0.5rem; color: var(--muted); font-size: 0.9rem;">
         <div style="display: flex; justify-content: space-between;">
           <span>Patient Name:</span>
-          <strong style="color: var(--fg);">{{ patient.pat_name }}</strong>
+          <strong style="color: var(--fg);">{{ appointment.pat_name }}</strong>
         </div>
         <div style="display: flex; justify-content: space-between;">
           <span>Contact:</span>
-          <strong style="color: var(--fg);">{{ patient.pat_contact }}</strong>
+          <strong style="color: var(--fg);">{{ appointment.pat_contact }}</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span>Date & Time:</span>
+          <strong style="color: var(--fg);">{{ appointment.app_date }} {{ appointment.app_time }}</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span>Service:</span>
+          <strong style="color: var(--fg);">{{ appointment.app_service }}</strong>
         </div>
       </div>
     </div>
 
-    <div style="background: rgba(18, 130, 255, 0.1); border: 1px solid rgba(18, 130, 255, 0.2); border-radius: 0.8rem; padding: 1rem; margin-bottom: 2rem;">
-      <p style="margin: 0 0 0.5rem; font-weight: 600; color: var(--fg);">💳 Payment Amount</p>
-      <h2 style="margin: 0; color: var(--primary);">$50.00</h2>
-      <p style="margin: 0.5rem 0 0; font-size: 0.9rem; color: var(--muted);">Consultation fee (non-refundable if cancelled within 24 hours)</p>
+    <div style="background: rgba(18, 130, 255, 0.1); border: 1px solid rgba(18, 130, 255, 0.2); border-radius: 0.8rem; padding: 1.25rem; margin-bottom: 2rem;">
+      <p style="margin: 0 0 0.75rem; font-weight: 600; color: var(--fg);">💳 Payment Amount</p>
+      <h2 style="margin: 0; color: var(--primary); font-size: 2.2rem;">₱{{ "%.2f"|format(appointment.app_service_price) }}</h2>
+      <p style="margin: 0.5rem 0 0; font-size: 0.9rem; color: var(--muted);">Philippine Peso (PHP)</p>
     </div>
 
-    <form method="post" action="#" style="display: grid; gap: 1rem;">
-      <label>Cardholder Name
-        <input type="text" placeholder="John Doe" required>
+    <form method="post">
+      <label style="margin-bottom: 1.5rem;">
+        <p style="margin: 0 0 1rem; font-weight: 600; color: var(--fg);">Payment Method</p>
+        
+        <div style="display: grid; gap: 0.75rem;">
+          <div style="display: flex; align-items: center; padding: 1rem; border: 2px solid var(--border); border-radius: 0.6rem; cursor: pointer; transition: all 0.2s ease;" onclick="document.getElementById('gcash').checked = true; this.parentElement.querySelector('[style*=border-primary]')?.style.borderColor === 'var(--primary)' ? '' : updatePaymentStyle()">
+            <input type="radio" id="gcash" name="payment_method" value="GCash" checked style="margin-right: 0.75rem;">
+            <div>
+              <p style="margin: 0; font-weight: 600; color: var(--fg);">💵 GCash</p>
+              <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: var(--muted);">Fast mobile payment</p>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; padding: 1rem; border: 2px solid var(--border); border-radius: 0.6rem; cursor: pointer; transition: all 0.2s ease;" onclick="document.getElementById('bank').checked = true; updatePaymentStyle()">
+            <input type="radio" id="bank" name="payment_method" value="Bank Transfer" style="margin-right: 0.75rem;">
+            <div>
+              <p style="margin: 0; font-weight: 600; color: var(--fg);">🏦 Bank Transfer</p>
+              <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: var(--muted);">Direct bank deposit</p>
+            </div>
+          </div>
+        </div>
       </label>
 
-      <label>Card Number
-        <input type="text" placeholder="1234 5678 9012 3456" maxlength="19" required>
-      </label>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-        <label>Expiry Date
-          <input type="text" placeholder="MM/YY" maxlength="5" required>
-        </label>
-        <label>CVV
-          <input type="text" placeholder="123" maxlength="3" required>
-        </label>
-      </div>
-
-      <button class="btn btn-primary" type="submit" style="width: 100%; margin-top: 1rem;">Pay $50.00</button>
+      <button class="btn btn-primary" type="submit" style="width: 100%; margin-bottom: 1rem;">Complete Payment</button>
     </form>
 
-    <p style="text-align: center; color: var(--muted); font-size: 0.9rem; margin-top: 1.5rem;">
+    <p style="text-align: center; color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem;">
       🔒 Your payment is secure and encrypted
     </p>
 
-    <p style="text-align: center; margin-top: 1rem;">
+    <p style="text-align: center;">
       <a href="/book" style="color: var(--primary); text-decoration: none; font-size: 0.9rem;">← Change appointment details</a>
     </p>
   </div>
 </div>
+
+<script>
+  function updatePaymentStyle() {
+    const gcashLabel = document.querySelector('input[value="GCash"]').parentElement.parentElement;
+    const bankLabel = document.querySelector('input[value="Bank Transfer"]').parentElement.parentElement;
+    
+    document.querySelectorAll('input[name="payment_method"]').forEach(input => {
+      input.parentElement.parentElement.style.borderColor = 'var(--border)';
+    });
+    
+    document.querySelector('input[name="payment_method"]:checked').parentElement.parentElement.style.borderColor = 'var(--primary)';
+  }
+  
+  document.querySelectorAll('input[name="payment_method"]').forEach(input => {
+    input.addEventListener('change', updatePaymentStyle);
+  });
+  
+  updatePaymentStyle();
+</script>
 {% endblock %}

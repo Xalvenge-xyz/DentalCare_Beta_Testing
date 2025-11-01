@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}My Appointments · DentalCare{% endblock %}
+{% block content %}
+<div class="hero"><div class="hero-bg"></div></div>
+<div class="container">
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="panel glass">
+      <p class="muted" style="margin-top: 0;">Total Appointments</p>
+      <p style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0 0;">{{ appointments|length }}</p>
+    </div>
+    <div class="panel glass">
+      <p class="muted" style="margin-top: 0;">Upcoming</p>
+      <p style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0 0; color: var(--primary);">{{ appointments|selectattr('app_status', 'in', ['Approved', 'Scheduled'])|list|length }}</p>
+    </div>
+    <div class="panel glass">
+      <p class="muted" style="margin-top: 0;">Completed</p>
+      <p style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0 0; color: var(--success);">{{ appointments|selectattr('app_status', 'equalto', 'Completed')|list|length }}</p>
+    </div>
+  </div>
+
+  <div class="panel glass" style="margin-bottom: 2rem;">
+    <h2 style="margin-top: 0;">Your Appointments</h2>
+    
+    {% if appointments %}
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+              <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--muted);">Date & Time</th>
+              <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--muted);">Service</th>
+              <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--muted);">Dentist</th>
+              <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--muted);">Status</th>
+              <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--muted);">Price</th>
+              <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--muted);">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for app in appointments %}
+              <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                <td style="padding: 1rem; color: var(--fg);">
+                  <div style="font-weight: 500;">{{ app.app_date }}</div>
+                  <div style="font-size: 0.85rem; color: var(--muted);">{{ app.app_time }}</div>
+                </td>
+                <td style="padding: 1rem; color: var(--fg);">{{ app.app_service }}</td>
+                <td style="padding: 1rem; color: var(--fg);">{{ app.dentist_name }}</td>
+                <td style="padding: 1rem;">
+                  {% if app.app_status == 'Completed' %}
+                    <span style="display: inline-block; padding: 0.35rem 0.75rem; background: rgba(34, 197, 94, 0.2); color: var(--success); border-radius: 0.4rem; font-size: 0.8rem; font-weight: 500;">✓ Completed</span>
+                  {% elif app.app_status in ['Approved', 'Scheduled', 'Confirmed'] %}
+                    <span style="display: inline-block; padding: 0.35rem 0.75rem; background: rgba(59, 130, 246, 0.2); color: var(--primary); border-radius: 0.4rem; font-size: 0.8rem; font-weight: 500;">📅 {{ app.app_status }}</span>
+                  {% elif app.app_status == 'Pending' %}
+                    <span style="display: inline-block; padding: 0.35rem 0.75rem; background: rgba(250, 204, 21, 0.2); color: #ca8a04; border-radius: 0.4rem; font-size: 0.8rem; font-weight: 500;">⏳ Pending</span>
+                  {% else %}
+                    <span style="display: inline-block; padding: 0.35rem 0.75rem; background: rgba(239, 68, 68, 0.2); color: var(--error); border-radius: 0.4rem; font-size: 0.8rem; font-weight: 500;">{{ app.app_status }}</span>
+                  {% endif %}
+                </td>
+                <td style="padding: 1rem; color: var(--fg); font-weight: 500;">₱{{ "%.2f"|format(app.app_service_price) }}</td>
+                <td style="padding: 1rem;">
+                  {% if app.payment_status == 'Paid' %}
+                    <a href="/customer/appointment/{{ app.app_id }}/receipt" class="btn btn-small" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; text-decoration: none;">Receipt</a>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 3rem; color: var(--muted);">
+        <p style="font-size: 3rem; margin-bottom: 1rem;">📭</p>
+        <p>No appointments yet. <a href="/book" style="color: var(--primary); text-decoration: none; font-weight: 600;">Book an appointment</a></p>
+      </div>
+    {% endif %}
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="panel glass">
+      <h3 style="margin-top: 0;">📬 Appointment Reminders</h3>
+      <p class="muted" style="margin-bottom: 1rem;">You will receive reminders 24 hours before your scheduled appointments via email and SMS.</p>
+      <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 0.5rem; padding: 1rem;">
+        <p style="margin: 0; font-size: 0.9rem; color: var(--fg);"><strong>Next Reminder:</strong></p>
+        {% set upcoming = appointments|selectattr('app_status', 'in', ['Approved', 'Scheduled'])|list %}
+        {% if upcoming %}
+          <p style="margin: 0.5rem 0 0; font-size: 0.9rem; color: var(--muted);">{{ upcoming[0].app_date }} at {{ upcoming[0].app_time }}</p>
+        {% else %}
+          <p style="margin: 0.5rem 0 0; font-size: 0.9rem; color: var(--muted);">No upcoming appointments</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="panel glass">
+      <h3 style="margin-top: 0;">💳 Payment History</h3>
+      <p class="muted" style="margin-bottom: 1rem;">View your payment status and download receipts.</p>
+      {% set paid_count = appointments|selectattr('payment_status', 'equalto', 'Paid')|list|length %}
+      {% set total_paid = appointments|selectattr('payment_status', 'equalto', 'Paid')|map(attribute='app_service_price')|sum %}
+      <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 0.5rem; padding: 1rem;">
+        <p style="margin: 0; font-size: 0.9rem; color: var(--fg);"><strong>Total Paid:</strong></p>
+        <p style="margin: 0.5rem 0 0; font-size: 1.3rem; font-weight: 700; color: var(--success);">₱{{ "%.2f"|format(total_paid) }}</p>
+        <p style="margin: 0.5rem 0 0; font-size: 0.85rem; color: var(--muted);">{{ paid_count }} payment(s)</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-bottom: 2rem;">
+    <a href="/logout" class="btn btn-outline">Logout</a>
+  </div>
+</div>
+
+<style>
+  .btn-small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    border: 1px solid var(--primary);
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--primary);
+    border-radius: 0.4rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-small:hover {
+    background: var(--primary);
+    color: white;
+  }
+</style>
+{% endblock %}

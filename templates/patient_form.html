@@ -1,20 +1,43 @@
 {% extends 'base.html' %}
 {% block title %}{{ patient and 'Edit' or 'Add' }} Patient · DentalCare{% endblock %}
 {% block content %}
+<section class="hero"><div class="hero-bg"></div></section>
 <div class="container narrow">
-  <h1>{{ patient and 'Edit' or 'Add' }} Patient</h1>
-  <form method="post" class="form">
-    <label>Name<input name="name" value="{{ patient.pat_name if patient }}" required></label>
-    <label>Age<input name="age" type="number" value="{{ patient.pat_age if patient }}" required></label>
-    <label>Sex
-      <select name="sex">
-        <option value="M" {% if patient and patient.pat_sex=='M' %}selected{% endif %}>M</option>
-        <option value="F" {% if patient and patient.pat_sex=='F' %}selected{% endif %}>F</option>
-      </select>
+  <div class="admin-hero">
+    <span class="badge">{% if patient %}Edit{% else %}Add New{% endif %}</span>
+    <h1 class="strong" style="margin: 0;">{{ patient and 'Edit' or 'Add' }} Patient</h1>
+  </div>
+
+  <form method="post" class="form glass" style="max-width: 520px; margin: 2rem auto; padding: 2.5rem;">
+    <label>Full Name
+      <input name="name" placeholder="John Doe" value="{{ patient.pat_name if patient }}" required>
     </label>
-    <label>Contact<input name="contact" value="{{ patient.pat_contact if patient }}"></label>
-    <label>Address<input name="address" value="{{ patient.pat_address if patient }}"></label>
-    <button class="btn btn-primary" type="submit">Save</button>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <label>Age
+        <input type="number" name="age" min="1" placeholder="Age" value="{{ patient.pat_age if patient }}" required>
+      </label>
+      <label>Sex
+        <select name="sex" required>
+          <option value="M" {% if patient and patient.pat_sex=='M' %}selected{% endif %}>Male</option>
+          <option value="F" {% if patient and patient.pat_sex=='F' %}selected{% endif %}>Female</option>
+        </select>
+      </label>
+    </div>
+
+    <label>Contact
+      <input type="tel" name="contact" placeholder="(555) 000-0000" value="{{ patient.pat_contact if patient }}" required>
+    </label>
+
+    <label>Address
+      <input name="address" placeholder="Street, City, Province" value="{{ patient.pat_address if patient }}" required>
+    </label>
+
+    <button class="btn btn-primary" type="submit" style="width: 100%; margin-top: 1.5rem;">{{ patient and 'Save Changes' or 'Add Patient' }}</button>
+
+    <p style="text-align: center; color: var(--muted); margin-top: 1rem;">
+      <a href="/staff/patients" style="color: var(--primary); text-decoration: none;">← Back to patients</a>
+    </p>
   </form>
 </div>
 {% endblock %}

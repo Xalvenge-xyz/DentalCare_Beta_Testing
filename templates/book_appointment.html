@@ -8,34 +8,38 @@
   {% endfor %}
 
   <div class="admin-hero" style="margin-bottom: 2rem;">
-    <span class="badge">Appointment</span>
+    <span class="badge">Guest Booking</span>
     <h1 class="strong" style="margin: 0;">Schedule Your Visit</h1>
   </div>
 
-  <div style="max-width: 720px; margin: 0 auto;">
+  <div style="max-width: 820px; margin: 0 auto;">
     <form method="post" class="form glass" style="padding: 2.5rem;">
       <div class="grid2" style="gap: 2rem;">
         <!-- Left Column: Form Fields -->
         <div>
           <h3 style="margin-top: 0; color: var(--fg);">Your Information</h3>
 
-          <label>Full name
+          <label>Full Name
             <input name="name" placeholder="John Doe" required>
           </label>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <label>Contact
-              <input name="contact" placeholder="(555) 000-0000" required>
+              <input name="contact" type="tel" placeholder="(555) 000-0000" required>
             </label>
             <label>Age
-              <input type="number" name="age" min="0" max="150" placeholder="Age" required>
+              <input type="number" name="age" min="1" max="150" placeholder="Age" required>
             </label>
           </div>
+
+          <label>Address
+            <input name="address" placeholder="Street, City, Province" required>
+          </label>
 
           <h3 style="margin-top: 2rem; color: var(--fg);">Appointment Details</h3>
 
           <label>Select Dentist
-            <select name="dentist_id" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
+            <select name="dentist_id" id="dentist-select" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
               <option value="">Choose a dentist...</option>
               {% for d in dentists %}
               <option value="{{ d.acc_id }}">{{ d.acc_name }}</option>
@@ -44,35 +48,21 @@
           </label>
 
           <label>Preferred Date
-            <input type="date" name="app_date" min="{{ min_date }}" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
+            <input type="date" name="app_date" id="app-date" min="{{ min_date }}" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
           </label>
 
           <label>Select Time
-            <select name="app_time" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
-              <option value="">Select a time...</option>
-              <option value="09:00">09:00 AM</option>
-              <option value="09:30">09:30 AM</option>
-              <option value="10:00">10:00 AM</option>
-              <option value="10:30">10:30 AM</option>
-              <option value="11:00">11:00 AM</option>
-              <option value="11:30">11:30 AM</option>
-              <option value="13:00">1:00 PM</option>
-              <option value="13:30">1:30 PM</option>
-              <option value="14:00">2:00 PM</option>
-              <option value="14:30">2:30 PM</option>
-              <option value="15:00">3:00 PM</option>
-              <option value="15:30">3:30 PM</option>
+            <select name="app_time" id="time-select" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
+              <option value="">Select dentist & date first...</option>
             </select>
           </label>
 
           <label>Service Type
-            <select name="app_service" style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
-              <option value="Dental Checkup">Dental Checkup</option>
-              <option value="Cleaning">Cleaning</option>
-              <option value="Filling">Filling</option>
-              <option value="Root Canal">Root Canal</option>
-              <option value="Extraction">Extraction</option>
-              <option value="Other">Other</option>
+            <select name="app_service" id="service-select" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
+              <option value="">Select service...</option>
+              {% for s in services %}
+              <option value="{{ s.service_name }}" data-price="{{ s.service_price }}">{{ s.service_name }} - ₱{{ "%.2f"|format(s.service_price) }}</option>
+              {% endfor %}
             </select>
           </label>
         </div>
@@ -106,10 +96,10 @@
               </div>
             </div>
 
-            <div style="background: rgba(0, 167, 167, 0.1); border: 1px solid rgba(0, 167, 167, 0.2); border-radius: 0.8rem; padding: 1rem; margin-bottom: 1.5rem;">
-              <p style="margin: 0 0 0.5rem; font-weight: 600; color: var(--fg);">💳 Payment Required</p>
-              <h2 style="margin: 0; color: var(--primary);">₱50.00</h2>
-              <p style="margin: 0.5rem 0 0; font-size: 0.85rem; color: var(--muted);">Consultation fee</p>
+            <div style="background: rgba(0, 167, 167, 0.1); border: 1px solid rgba(0, 167, 167, 0.2); border-radius: 0.8rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+              <p style="margin: 0 0 0.75rem; font-weight: 600; color: var(--fg); font-size: 0.95rem;">💳 Total Payment</p>
+              <h2 style="margin: 0; color: var(--primary); font-size: 2.2rem;">₱<span id="total-price">0.00</span></h2>
+              <p style="margin: 0.5rem 0 0; font-size: 0.85rem; color: var(--muted);">Philippine Peso (₱)</p>
             </div>
 
             <button class="btn btn-primary" type="submit" style="width: 100%;">Proceed to Payment</button>
@@ -125,15 +115,47 @@
 
   <script>
     const nameInput = document.querySelector('input[name="name"]');
-    const dentistSelect = document.querySelector('select[name="dentist_id"]');
-    const dateInput = document.querySelector('input[name="app_date"]');
-    const timeSelect = document.querySelector('select[name="app_time"]');
-    const serviceSelect = document.querySelector('select[name="app_service"]');
+    const dentistSelect = document.getElementById('dentist-select');
+    const dateInput = document.getElementById('app-date');
+    const timeSelect = document.getElementById('time-select');
+    const serviceSelect = document.getElementById('service-select');
+    const totalPrice = document.getElementById('total-price');
 
     const summaryName = document.getElementById('summary-name');
     const summaryDentist = document.getElementById('summary-dentist');
     const summaryDateTime = document.getElementById('summary-datetime');
     const summaryService = document.getElementById('summary-service');
+
+    async function loadAvailableTimes() {
+      if (!dentistSelect.value || !dateInput.value) {
+        timeSelect.innerHTML = '<option value="">Select dentist & date first...</option>';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/available-times/${dentistSelect.value}/${dateInput.value}`);
+        const data = await response.json();
+        
+        timeSelect.innerHTML = '<option value="">Select a time...</option>';
+        if (data.times.length === 0) {
+          timeSelect.innerHTML += '<option disabled>No available times</option>';
+        } else {
+          data.times.forEach(time => {
+            const [hours, mins] = time.split(':');
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12;
+            const displayTime = `${displayHours.toString().padStart(2, '0')}:${mins} ${period}`;
+            const option = document.createElement('option');
+            option.value = time;
+            option.textContent = displayTime;
+            timeSelect.appendChild(option);
+          });
+        }
+      } catch (error) {
+        console.error('Error loading times:', error);
+        timeSelect.innerHTML = '<option>Error loading times</option>';
+      }
+    }
 
     const updateSummary = () => {
       summaryName.textContent = nameInput.value || '—';
@@ -144,18 +166,35 @@
       if (dateInput.value && timeSelect.value) {
         const date = new Date(dateInput.value);
         const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-        const timeStr = timeSelect.options[timeSelect.selectedIndex].text;
+        const [hours, mins] = timeSelect.value.split(':');
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours % 12 || 12;
+        const timeStr = `${displayHours.toString().padStart(2, '0')}:${mins} ${period}`;
         summaryDateTime.textContent = `${dateStr}, ${timeStr}`;
       } else {
         summaryDateTime.textContent = '—';
       }
 
-      summaryService.textContent = serviceSelect.options[serviceSelect.selectedIndex].text || '—';
+      const serviceOption = serviceSelect.options[serviceSelect.selectedIndex];
+      if (serviceOption.value) {
+        const price = parseFloat(serviceOption.getAttribute('data-price'));
+        summaryService.textContent = serviceOption.text;
+        totalPrice.textContent = price.toFixed(2);
+      } else {
+        summaryService.textContent = '—';
+        totalPrice.textContent = '0.00';
+      }
     };
 
     nameInput.addEventListener('input', updateSummary);
-    dentistSelect.addEventListener('change', updateSummary);
-    dateInput.addEventListener('change', updateSummary);
+    dentistSelect.addEventListener('change', () => {
+      loadAvailableTimes();
+      updateSummary();
+    });
+    dateInput.addEventListener('change', () => {
+      loadAvailableTimes();
+      updateSummary();
+    });
     timeSelect.addEventListener('change', updateSummary);
     serviceSelect.addEventListener('change', updateSummary);
 

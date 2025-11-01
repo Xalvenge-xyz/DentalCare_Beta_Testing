@@ -13,8 +13,12 @@
       <div class="flash {{ m[0] }}">{{ m[1] }}</div>
     {% endfor %}
 
+    {% if request.args.get('create_from_booking') %}
+      <input type="hidden" name="create_from_booking" value="{{ request.args.get('create_from_booking') }}">
+    {% endif %}
+
     <label>Full name
-      <input name="name" placeholder="John Doe" required>
+      <input name="name" placeholder="John Doe" value="{{ request.args.get('name', '') }}" required>
     </label>
     <label>Email
       <input name="email" type="email" placeholder="your@email.com" required>
@@ -23,16 +27,29 @@
       <input name="password" type="password" placeholder="••••••••" required>
     </label>
     <label>Contact
-      <input name="contact" placeholder="(555) 000-0000">
+      <input name="contact" placeholder="(555) 000-0000" value="{{ request.args.get('contact', '') }}">
     </label>
     <label>Role
       <select name="role" id="role-select" required>
+        <option value="Customer">Customer</option>
         <option value="Staff">Staff</option>
         <option value="Dentist">Dentist</option>
       </select>
     </label>
-    <label id="specialty-label" style="display:none">Specialty
-      <input name="specialty" id="specialty-input" placeholder="General Dentistry">
+    <label id="specialty-label">Specialty
+      <select name="specialty" id="specialty-select">
+        <option value="">Select Specialty</option>
+        <option value="General Dentistry">General Dentistry</option>
+        <option value="Orthodontics">Orthodontics</option>
+        <option value="Periodontics">Periodontics</option>
+        <option value="Endodontics">Endodontics</option>
+        <option value="Prosthodontics">Prosthodontics</option>
+        <option value="Oral Surgery">Oral Surgery</option>
+        <option value="Pediatric Dentistry">Pediatric Dentistry</option>
+        <option value="Cosmetic Dentistry">Cosmetic Dentistry</option>
+        <option value="Implantology">Implantology</option>
+        <option value="Other">Other</option>
+      </select>
     </label>
 
     <button class="btn btn-primary" type="submit">Create account</button>
@@ -44,12 +61,12 @@
     (function(){
       const role = document.getElementById('role-select');
       const specLabel = document.getElementById('specialty-label');
-      const specInput = document.getElementById('specialty-input');
+      const specSelect = document.getElementById('specialty-select');
       const sync = () => {
         const isDentist = role.value === 'Dentist';
         specLabel.style.display = isDentist ? 'grid' : 'none';
-        specInput.disabled = !isDentist;
-        if (!isDentist) specInput.value = '';
+        specSelect.disabled = !isDentist;
+        if (!isDentist) specSelect.value = '';
       };
       role.addEventListener('change', sync);
       document.addEventListener('DOMContentLoaded', sync);

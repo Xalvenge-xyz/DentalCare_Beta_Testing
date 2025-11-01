@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Booking Requests · DentalCare{% endblock %}
+{% block content %}
+<section class="hero"><div class="hero-bg"></div></section>
+<div class="container">
+  {% for m in get_flashed_messages(with_categories=true) %}
+    <div class="flash {{ m[0] }}">{{ m[1] }}</div>
+  {% endfor %}
+
+  <div class="admin-hero">
+    <span class="badge">Approvals</span>
+    <h1 class="strong" style="margin: 0;">Pending Booking Requests</h1>
+  </div>
+
+  {% if bookings %}
+  <div style="max-height: 600px; overflow-y: auto;">
+    <table class="table glass">
+      <thead style="position: sticky; top: 0; z-index: 10;">
+        <tr>
+          <th>ID</th>
+          <th>Patient</th>
+          <th>Contact</th>
+          <th>Dentist</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Service</th>
+          <th>Payment</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in bookings %}
+        <tr>
+          <td><strong>{{ b.app_id }}</strong></td>
+          <td>{{ b.pat_name }}</td>
+          <td>{{ b.pat_contact }}</td>
+          <td>{{ b.dentist_name }}</td>
+          <td>{{ b.app_date }}</td>
+          <td>{{ b.app_time }}</td>
+          <td>{{ b.app_service }}</td>
+          <td>
+            {% if b.payment_status == 'Paid' %}
+              <span class="chip" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">✓ Paid</span>
+            {% else %}
+              <span class="chip" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);">Unpaid</span>
+            {% endif %}
+          </td>
+          <td>
+            <div style="display: flex; gap: 0.5rem;">
+              <form method="post" action="/staff/bookings/{{ b.app_id }}/approve" style="display: inline;">
+                <button class="btn btn-primary" type="submit" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">Approve</button>
+              </form>
+              <form method="post" action="/staff/bookings/{{ b.app_id }}/reject" style="display: inline;" onsubmit="return confirm('Reject this booking?')">
+                <button class="btn btn-danger" type="submit" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">Reject</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div style="text-align: center; padding: 3rem; color: var(--muted);">
+      <p style="font-size: 1.1rem; margin-bottom: 1rem;">✓ No pending booking requests</p>
+      <p>All bookings have been reviewed!</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
