@@ -13,8 +13,8 @@
   </div>
 
   <div class="dashboard-grid">
-    <a href="#appointments" class="dashboard-card">
-      <h3>📋 Scheduled</h3>
+    <a href="/dentist/schedule" class="dashboard-card">
+      <h3>📋 Scheduled  </h3>
       <p>Appointments awaiting completion</p>
     </a>
     <a href="/dentist/completed" class="dashboard-card">
@@ -29,38 +29,40 @@
 
   <div id="appointments" style="margin-top: 2rem; padding-bottom: 2rem;">
     <h2>Pending Appointments</h2>
-    <table class="table glass">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Patient</th>
-          <th>Date</th>
-          <th>Time</th>
-          <th>Service</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for a in apps %}
-        <tr>
-          <td><strong>{{ a.app_id }}</strong></td>
-          <td>{{ a.pat_name }}</td>
-          <td>{{ a.app_date }}</td>
-          <td>{{ a.app_time }}</td>
-          <td>{{ a.app_service }}</td>
-          <td><span class="chip" style="background: rgba(18, 130, 255, 0.15); color: var(--secondary);">{{ a.app_status }}</span></td>
-          <td>
-            <form method="post" action="/dentist/complete" style="display: flex; gap: 0.5rem; align-items: center;">
-              <input type="hidden" name="app_id" value="{{ a.app_id }}" />
-              <input name="notes" placeholder="Notes" style="padding: 0.5rem; border-radius: 0.4rem; border: 1px solid var(--border); font-size: 0.9rem; width: 150px;">
-              <button class="btn btn-primary" type="submit" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; white-space: nowrap;">Complete</button>
-            </form>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div style="max-height: 500px; overflow-y: auto;">
+      <table class="table glass">
+        <thead style="position: sticky; top: 0; z-index: 10;">
+          <tr>
+            <th>ID</th>
+            <th>Patient</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Service</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in apps %}
+          <tr>
+            <td><strong>{{ a.app_id }}</strong></td>
+            <td>{{ a.pat_name }}</td>
+            <td>{{ a.app_date }}</td>
+            <td>{{ a.app_time }}</td>
+            <td>{{ a.app_service }}</td>
+            <td><span class="chip" style="background: rgba(18, 130, 255, 0.15); color: var(--secondary);">{{ a.app_status }}</span></td>
+            <td>
+              <form method="post" action="/dentist/complete" style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="hidden" name="app_id" value="{{ a.app_id }}" />
+                <input name="notes" placeholder="Notes" style="padding: 0.5rem; border-radius: 0.4rem; border: 1px solid var(--border); font-size: 0.9rem; width: 150px;">
+                <button class="btn btn-primary" type="submit" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; white-space: nowrap;">Complete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 {% endblock %}

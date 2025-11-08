@@ -37,7 +37,7 @@
           <td>{{ b.dentist_name }}</td>
           <td>{{ b.app_date }}</td>
           <td>{{ b.app_time }}</td>
-          <td>{{ b.app_service }}</td>
+          <td><strong>{{ b.app_service }}</strong></td>
           <td>
             {% if b.payment_status == 'Paid' %}
               <span class="chip" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">✓ Paid</span>

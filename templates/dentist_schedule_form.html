@@ -1,14 +1,126 @@
 {% extends 'base.html' %}
-{% block title %}Edit Dentist Schedule · DentalCare{% endblock %}
+{% block title %}{% if is_self %}Edit Your Schedule{% else %}Edit Dentist Schedule{% endif %} · DentalCare{% endblock %}
 {% block content %}
-<div class="container narrow">
-  <h1>Edit Schedule — {{ dentist.acc_name }}</h1>
-  <form method="post" class="form">
-    <label>Specialty<input name="specialty" value="{{ dentist.specialty or '' }}" placeholder="General Dentistry"></label>
-    <label>Start Time (HH:mm)<input name="work_start" value="{{ dentist.work_start or '08:00' }}" required></label>
-    <label>End Time (HH:mm)<input name="work_end" value="{{ dentist.work_end or '17:00' }}" required></label>
-    <label>Work Days<input name="work_days" value="{{ dentist.work_days or 'Monday,Tuesday,Wednesday,Thursday,Friday' }}" required></label>
-    <button class="btn btn-primary" type="submit">Save</button>
-  </form>
+<section class="hero"><div class="hero-bg"></div></section>
+<div class="container">
+  {% for m in get_flashed_messages(with_categories=true) %}
+    <div class="flash {{ m[0] }}">{{ m[1] }}</div>
+  {% endfor %}
+
+  <div class="admin-hero" style="margin-bottom: 2rem;">
+    <span class="badge">{% if is_self %}My Schedule{% else %}Dentist Schedule{% endif %}</span>
+    <h1 class="strong" style="margin: 0;">{{ dentist.acc_name }}</h1>
+  </div>
+
+  <div style="max-width: 520px; margin: 2rem auto;">
+    {% if is_self %}
+    <form method="post" class="form glass" style="padding: 2.5rem;">
+      <h3 style="margin-top: 0; color: var(--fg);">Manage Your Duty Schedule</h3>
+
+      <label>Specialty
+        <select name="specialty" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
+          <option value="">Select your specialty...</option>
+          <option value="General Dentistry" {% if dentist.specialty == 'General Dentistry' %}selected{% endif %}>General Dentistry</option>
+          <option value="Endodontics" {% if dentist.specialty == 'Endodontics' %}selected{% endif %}>Endodontics (Root Canals)</option>
+          <option value="Oral Surgery" {% if dentist.specialty == 'Oral Surgery' %}selected{% endif %}>Oral Surgery</option>
+          <option value="Orthodontics" {% if dentist.specialty == 'Orthodontics' %}selected{% endif %}>Orthodontics</option>
+          <option value="Periodontology" {% if dentist.specialty == 'Periodontology' %}selected{% endif %}>Periodontology</option>
+          <option value="Pediatric Dentistry" {% if dentist.specialty == 'Pediatric Dentistry' %}selected{% endif %}>Pediatric Dentistry</option>
+        </select>
+      </label>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <label>Start Time (HH:mm)
+          <input type="time" name="work_start" value="{{ dentist.work_start or '08:00' }}" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
+        </label>
+        <label>End Time (HH:mm)
+          <input type="time" name="work_end" value="{{ dentist.work_end or '17:00' }}" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
+        </label>
+      </div>
+
+      <label style="display: block; margin-bottom: 1rem;">Work Days
+        <p style="margin: 0.5rem 0 0.75rem; font-size: 0.9rem; color: var(--muted);">Select your available days</p>
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem;">
+          {% set days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+          {% set short_days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %}
+          {% set current_days = (dentist.work_days or 'Monday,Tuesday,Wednesday,Thursday,Friday').split(',') %}
+          {% for i in range(days|length) %}
+          <button type="button" class="day-btn{% if days[i] in current_days %} active{% endif %}" data-day="{{ days[i] }}" style="padding: 0.7rem 0.5rem; border-radius: 0.6rem; border: 2px solid var(--border); color: var(--fg); font-weight: 600; cursor: pointer; transition: all 0.2s ease;" onclick="toggleDay(this, event)">{{ short_days[i] }}</button>
+          {% endfor %}
+        </div>
+
+        <style>
+          .day-btn {
+            background: rgba(255, 255, 255, 0.664);
+            border-color: var(--border);
+          }
+          .day-btn.active {
+            background: rgba(3, 251, 247, 0.708);
+            border-color: rgba(6, 63, 184, 0.614);
+          }
+        </style>
+        <input type="hidden" id="work-days-input" name="work_days" value="{{ dentist.work_days or 'Monday,Tuesday,Wednesday,Thursday,Friday' }}" required>
+      </label>
+
+      <button class="btn btn-primary" type="submit" style="width: 100%; margin-bottom: 1rem;">Save My Schedule</button>
+
+      <p style="text-align: center; color: var(--muted); margin-top: 1rem;">
+        <a href="/dentist" style="color: var(--primary); text-decoration: none;">← Back to dashboard</a>
+      </p>
+
+      <script>
+        const workDaysInput = document.getElementById('work-days-input');
+        const dayButtons = document.querySelectorAll('.day-btn');
+
+        function toggleDay(button, event) {
+          event.preventDefault();
+          const day = button.dataset.day;
+          const currentDays = workDaysInput.value.split(',').map(d => d.trim()).filter(d => d);
+
+          if (currentDays.includes(day)) {
+            // Remove the day
+            const updatedDays = currentDays.filter(d => d !== day);
+            workDaysInput.value = updatedDays.join(',');
+            button.classList.remove('active');
+          } else {
+            // Add the day
+            currentDays.push(day);
+            workDaysInput.value = currentDays.join(',');
+            button.classList.add('active');
+          }
+        }
+      </script>
+    </form>
+    {% else %}
+    <div class="panel glass" style="padding: 2.5rem;">
+      <h3 style="margin-top: 0; color: var(--fg);">Dentist Information (View Only)</h3>
+      
+      <div style="display: grid; gap: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.25rem;">Specialty</label>
+          <p style="margin: 0; padding: 0.75rem; background: rgba(255, 255, 255, 0.1); border-radius: 0.5rem; color: var(--fg);">{{ dentist.specialty or 'Not set' }}</p>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.25rem;">Start Time</label>
+            <p style="margin: 0; padding: 0.75rem; background: rgba(255, 255, 255, 0.1); border-radius: 0.5rem; color: var(--fg);">{{ dentist.work_start or 'Not set' }}</p>
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.25rem;">End Time</label>
+            <p style="margin: 0; padding: 0.75rem; background: rgba(255, 255, 255, 0.1); border-radius: 0.5rem; color: var(--fg);">{{ dentist.work_end or 'Not set' }}</p>
+          </div>
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.25rem;">Work Days</label>
+          <p style="margin: 0; padding: 0.75rem; background: rgba(255, 255, 255, 0.1); border-radius: 0.5rem; color: var(--fg);">{{ dentist.work_days or 'Not set' }}</p>
+        </div>
+      </div>
+
+      <p style="text-align: center; color: var(--muted); margin-top: 2rem;">
+        <a href="/staff/dentists" style="color: var(--primary); text-decoration: none;">← Back to schedules</a>
+      </p>
+    </div>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

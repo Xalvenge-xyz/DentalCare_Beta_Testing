@@ -29,84 +29,88 @@
 
   <div id="accounts" style="margin-top: 3rem;">
     <h2>Manage Accounts</h2>
-    <table class="table glass">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for u in users %}
-        <tr>
-          <td>{{ u.acc_id }}</td>
-          <td><strong>{{ u.acc_name }}</strong></td>
-          <td>{{ u.acc_email }}</td>
-          <td><span class="chip">{{ u.acc_role }}</span></td>
-          <td>
-            {% if u.acc_status == 'Approved' %}
-              <span class="chip" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">{{ u.acc_status }}</span>
-            {% elif u.acc_status == 'Pending Approval' %}
-              <span class="chip" style="background: rgba(250, 204, 21, 0.15); color: #ca8a04;">{{ u.acc_status }}</span>
-            {% else %}
-              <span class="chip" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);">{{ u.acc_status }}</span>
-            {% endif %}
-          </td>
-          <td>
-            <form method="post" action="/admin/approve" style="display: flex; gap: 0.5rem; align-items: center;">
-              <input type="hidden" name="acc_id" value="{{ u.acc_id }}" />
-              <select name="action" style="padding: 0.5rem; border-radius: 0.4rem; border: 1px solid var(--border); font-size: 0.9rem;">
-                <option>Approve</option>
-                <option>Reject</option>
-                <option>Deactivate</option>
-              </select>
-              <button class="btn btn-outline" type="submit" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Go</button>
-            </form>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div style="max-height: 500px; overflow-y: auto;">
+      <table class="table glass">
+        <thead style="position: sticky; top: 0; z-index: 10;">
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td>{{ u.acc_id }}</td>
+            <td><strong>{{ u.acc_name }}</strong></td>
+            <td>{{ u.acc_email }}</td>
+            <td><span class="chip">{{ u.acc_role }}</span></td>
+            <td>
+              {% if u.acc_status == 'Approved' %}
+                <span class="chip" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">{{ u.acc_status }}</span>
+              {% elif u.acc_status == 'Pending Approval' %}
+                <span class="chip" style="background: rgba(250, 204, 21, 0.15); color: #ca8a04;">{{ u.acc_status }}</span>
+              {% else %}
+                <span class="chip" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);">{{ u.acc_status }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <form method="post" action="/admin/approve" style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="hidden" name="acc_id" value="{{ u.acc_id }}" />
+                <select name="action" style="padding: 0.5rem; border-radius: 0.4rem; border: 1px solid var(--border); font-size: 0.9rem;">
+                  <option>Approve</option>
+                  <option>Reject</option>
+                  <option>Deactivate</option>
+                </select>
+                <button class="btn btn-outline" type="submit" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Go</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div id="appointments" style="margin-top: 3rem; padding-bottom: 2rem;">
     <h2>Appointments Overview</h2>
-    <table class="table glass">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Patient</th>
-          <th>Dentist</th>
-          <th>Date</th>
-          <th>Time</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for a in apps %}
-        <tr>
-          <td><strong>{{ a.app_id }}</strong></td>
-          <td>{{ a.pat_name or '—' }}</td>
-          <td>{{ a.dentist_name or '—' }}</td>
-          <td>{{ a.app_date }}</td>
-          <td>{{ a.app_time }}</td>
-          <td>
-            {% if a.app_status == 'Scheduled' %}
-              <span class="chip" style="background: rgba(18, 130, 255, 0.15); color: var(--secondary);">{{ a.app_status }}</span>
-            {% elif a.app_status == 'Completed' %}
-              <span class="chip" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">{{ a.app_status }}</span>
-            {% else %}
-              <span class="chip">{{ a.app_status }}</span>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div style="max-height: 500px; overflow-y: auto;">
+      <table class="table glass">
+        <thead style="position: sticky; top: 0; z-index: 10;">
+          <tr>
+            <th>ID</th>
+            <th>Patient</th>
+            <th>Dentist</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in apps %}
+          <tr>
+            <td><strong>{{ a.app_id }}</strong></td>
+            <td>{{ a.pat_name or '—' }}</td>
+            <td>{{ a.dentist_name or '—' }}</td>
+            <td>{{ a.app_date }}</td>
+            <td>{{ a.app_time }}</td>
+            <td>
+              {% if a.app_status == 'Scheduled' %}
+                <span class="chip" style="background: rgba(18, 130, 255, 0.15); color: var(--secondary);">{{ a.app_status }}</span>
+              {% elif a.app_status == 'Completed' %}
+                <span class="chip" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">{{ a.app_status }}</span>
+              {% else %}
+                <span class="chip">{{ a.app_status }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 {% endblock %}

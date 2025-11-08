@@ -29,38 +29,40 @@
 
   <div style="margin-top: 2.5rem; padding-bottom: 2rem;">
     <h2>Latest Appointments</h2>
-    <table class="table glass">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Patient</th>
-          <th>Dentist</th>
-          <th>Date</th>
-          <th>Time</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for a in appointments %}
-        <tr>
-          <td><strong>{{ a.app_id }}</strong></td>
-          <td>{{ a.pat_name }}</td>
-          <td>{{ a.dentist_name }}</td>
-          <td>{{ a.app_date }}</td>
-          <td>{{ a.app_time }}</td>
-          <td>
-            {% if a.app_status == 'Completed' %}
-              <span class="chip" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">{{ a.app_status }}</span>
-            {% elif a.app_status == 'Scheduled' %}
-              <span class="chip" style="background: rgba(18, 130, 255, 0.15); color: var(--secondary);">{{ a.app_status }}</span>
-            {% else %}
-              <span class="chip">{{ a.app_status }}</span>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div style="max-height: 500px; overflow-y: auto;">
+      <table class="table glass">
+        <thead style="position: sticky; top: 0; z-index: 10;">
+          <tr>
+            <th>ID</th>
+            <th>Patient</th>
+            <th>Dentist</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in appointments %}
+          <tr>
+            <td><strong>{{ a.app_id }}</strong></td>
+            <td>{{ a.pat_name }}</td>
+            <td>{{ a.dentist_name }}</td>
+            <td>{{ a.app_date }}</td>
+            <td>{{ a.app_time }}</td>
+            <td>
+              {% if a.app_status == 'Completed' %}
+                <span class="chip" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">{{ a.app_status }}</span>
+              {% elif a.app_status == 'Scheduled' %}
+                <span class="chip" style="background: rgba(18, 130, 255, 0.15); color: var(--secondary);">{{ a.app_status }}</span>
+              {% else %}
+                <span class="chip">{{ a.app_status }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div style="text-align: center; margin-top: 2rem;">

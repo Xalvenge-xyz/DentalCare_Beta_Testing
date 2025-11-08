@@ -142,6 +142,12 @@ def create_app():
 
     @app.route('/book', methods=['GET', 'POST'])
     def book_appointment():
+        user = current_user()
+        # Check if user is logged in and has a restricted role
+        if user and user['acc_role'] in ['Dentist', 'Staff', 'Super Admin', 'Admin']:
+            flash('You cannot book appointments. Only customers and guests can book.', 'error')
+            return redirect(url_for('home'))
+
         if request.method == 'POST':
             name = request.form.get('name','').strip()
             age = request.form.get('age', type=int)
@@ -157,9 +163,37 @@ def create_app():
                 dentists = g.db.execute("SELECT a.acc_id, a.acc_name FROM tbl_accounts a WHERE a.acc_role='Dentist' AND a.acc_status='Approved' ORDER BY a.acc_name").fetchall()
                 services = g.db.execute("SELECT service_name, service_price FROM tbl_services ORDER BY service_name").fetchall()
                 min_date = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
-                return render_template('book_appointment.html', dentists=dentists, services=services, min_date=min_date, user=current_user())
+                return render_template('book_appointment.html', dentists=dentists, services=services, min_date=min_date, user=current_user(), booking_mode=user['acc_role'] if user else 'guest')
 
             try:
+                # Validate dentist schedule
+                den = g.db.execute("SELECT work_start, work_end, work_days FROM tbl_dentists WHERE dentist_id=?", (dentist_id,)).fetchone()
+                if not den:
+                    flash('Dentist schedule not configured', 'error')
+                    dentists = g.db.execute("SELECT a.acc_id, a.acc_name FROM tbl_accounts a WHERE a.acc_role='Dentist' AND a.acc_status='Approved' ORDER BY a.acc_name").fetchall()
+                    services = g.db.execute("SELECT service_name, service_price FROM tbl_services ORDER BY service_name").fetchall()
+                    min_date = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+                    return render_template('book_appointment.html', dentists=dentists, services=services, min_date=min_date, user=current_user(), booking_mode=user['acc_role'] if user else 'guest')
+
+                day_of_week = datetime.strptime(app_date, '%Y-%m-%d').strftime('%A')
+                if day_of_week not in (den['work_days'] or ''):
+                    flash(f'Selected dentist does not work on {day_of_week}', 'error')
+                    dentists = g.db.execute("SELECT a.acc_id, a.acc_name FROM tbl_accounts a WHERE a.acc_role='Dentist' AND a.acc_status='Approved' ORDER BY a.acc_name").fetchall()
+                    services = g.db.execute("SELECT service_name, service_price FROM tbl_services ORDER BY service_name").fetchall()
+                    min_date = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+                    return render_template('book_appointment.html', dentists=dentists, services=services, min_date=min_date, user=current_user(), booking_mode=user['acc_role'] if user else 'guest')
+
+                # Check time is within work hours
+                app_time_obj = datetime.strptime(app_time, '%H:%M')
+                work_start_obj = datetime.strptime(den['work_start'], '%H:%M')
+                work_end_obj = datetime.strptime(den['work_end'], '%H:%M')
+                if not (work_start_obj <= app_time_obj < work_end_obj):
+                    flash(f"Selected dentist is available only between {den['work_start']} and {den['work_end']}", 'error')
+                    dentists = g.db.execute("SELECT a.acc_id, a.acc_name FROM tbl_accounts a WHERE a.acc_role='Dentist' AND a.acc_status='Approved' ORDER BY a.acc_name").fetchall()
+                    services = g.db.execute("SELECT service_name, service_price FROM tbl_services ORDER BY service_name").fetchall()
+                    min_date = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+                    return render_template('book_appointment.html', dentists=dentists, services=services, min_date=min_date, user=current_user(), booking_mode=user['acc_role'] if user else 'guest')
+
                 service_row = g.db.execute("SELECT service_price FROM tbl_services WHERE service_name = ?", (app_service,)).fetchone()
                 service_price = service_row['service_price'] if service_row else 50.00
 
@@ -186,13 +220,32 @@ def create_app():
         dentists = g.db.execute("SELECT a.acc_id, a.acc_name FROM tbl_accounts a WHERE a.acc_role='Dentist' AND a.acc_status='Approved' ORDER BY a.acc_name").fetchall()
         services = g.db.execute("SELECT service_name, service_price FROM tbl_services ORDER BY service_name").fetchall()
         min_date = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
-        return render_template('book_appointment.html', dentists=dentists, services=services, min_date=min_date, user=current_user())
+        booking_mode = user['acc_role'] if user else 'guest'
+
+        # Get customer information if logged in as Customer
+        customer_info = None
+        if user and user['acc_role'] == 'Customer':
+            customer_info = {
+                'name': user['acc_name'],
+                'contact': user['acc_contact']
+            }
+
+        return render_template('book_appointment.html', dentists=dentists, services=services, min_date=min_date, user=current_user(), booking_mode=booking_mode, customer_info=customer_info)
 
     @app.route('/api/available-times/<int:dentist_id>/<date>')
     def get_available_times_api(dentist_id, date):
         from flask import jsonify
         available = get_available_times(dentist_id, date)
         return jsonify(times=available)
+
+    @app.route('/api/services/<int:dentist_id>')
+    def get_services_by_dentist(dentist_id):
+        dentist = g.db.execute("SELECT specialty FROM tbl_dentists WHERE dentist_id = ?", (dentist_id,)).fetchone()
+        if not dentist or not dentist['specialty']:
+            services = g.db.execute("SELECT service_name, service_price FROM tbl_services ORDER BY service_name").fetchall()
+        else:
+            services = g.db.execute("SELECT service_name, service_price FROM tbl_services WHERE service_specialty = ? ORDER BY service_name", (dentist['specialty'],)).fetchall()
+        return jsonify(services=[dict(s) for s in services])
 
     @app.route('/appointment/payment', methods=['GET', 'POST'])
     def appointment_payment():
@@ -237,11 +290,21 @@ def create_app():
     def register():
         if request.method == 'POST':
             name = request.form.get('name','').strip()
-            email = request.form.get('email','').strip()
+            email = request.form.get('email','').strip().lower()
             password = request.form.get('password','')
             contact = request.form.get('contact','').strip()
             role = request.form.get('role','Customer')
             create_from_booking = request.form.get('create_from_booking')
+
+            if not name or not email or not password:
+                flash('All fields are required.', 'error')
+                return render_template('auth_register.html', user=current_user())
+
+            existing = g.db.execute("SELECT acc_id FROM tbl_accounts WHERE LOWER(acc_email) = ?", (email.lower(),)).fetchone()
+            if existing:
+                flash('Email already registered.', 'error')
+                return render_template('auth_register.html', user=current_user())
+
             status = 'Approved' if role == 'Customer' else 'Pending Approval'
             try:
                 g.db.execute(
@@ -249,7 +312,7 @@ def create_app():
                     (name, email, password, contact, role, status)
                 )
                 g.db.commit()
-                cur = g.db.execute("SELECT acc_id FROM tbl_accounts WHERE acc_email = ?", (email,))
+                cur = g.db.execute("SELECT acc_id FROM tbl_accounts WHERE LOWER(acc_email) = ?", (email.lower(),))
                 acc = cur.fetchone()
                 if acc:
                     if role == 'Dentist':
@@ -264,8 +327,8 @@ def create_app():
                             log_action(None, 'customer_booking_claimed', f"app_id:{app_id} customer_id:{acc['acc_id']}")
                 flash('Registration successful.', 'success')
                 return redirect(url_for('login'))
-            except sqlite3.IntegrityError:
-                flash('Email already registered.', 'error')
+            except sqlite3.IntegrityError as e:
+                flash('Registration failed. Please try again.', 'error')
         return render_template('auth_register.html', user=current_user())
 
     @app.route('/login', methods=['GET', 'POST'])
@@ -528,11 +591,12 @@ def create_app():
     @require_role(['Staff'])
     def dentist_schedules():
         cur = g.db.execute("SELECT a.acc_id, a.acc_name, d.specialty, d.work_start, d.work_end, d.work_days FROM tbl_accounts a LEFT JOIN tbl_dentists d ON a.acc_id = d.dentist_id WHERE a.acc_role = 'Dentist' ORDER BY a.acc_name")
-        return render_template('dentists_schedules.html', dentists=cur.fetchall(), user=current_user())
+        return render_template('dentists_schedules.html', dentists=cur.fetchall(), user=current_user(), is_staff_view=True)
 
-    @app.route('/staff/dentists/<int:did>/schedule', methods=['GET','POST'])
-    @require_role(['Staff'])
-    def dentist_schedule_edit(did):
+    @app.route('/dentist/schedule', methods=['GET','POST'])
+    @require_role(['Dentist'])
+    def dentist_schedule_edit():
+        did = current_user()['acc_id']
         if request.method == 'POST':
             specialty = request.form.get('specialty','')
             work_start = request.form.get('work_start','08:00')
@@ -544,16 +608,17 @@ def create_app():
             else:
                 g.db.execute("INSERT INTO tbl_dentists (dentist_id, specialty, work_start, work_end, work_days) VALUES (?, ?, ?, ?, ?)", (did, specialty, work_start, work_end, work_days))
             g.db.commit()
-            log_action(current_user(), 'dentist_schedule_update', str(did))
-            return redirect(url_for('dentist_schedules'))
+            log_action(current_user(), 'own_schedule_update', str(did))
+            flash('Your duty schedule has been updated successfully.', 'success')
+            return redirect(url_for('dentist_dashboard'))
         cur = g.db.execute("SELECT a.acc_id, a.acc_name, d.* FROM tbl_accounts a LEFT JOIN tbl_dentists d ON a.acc_id = d.dentist_id WHERE a.acc_id=?", (did,))
-        return render_template('dentist_schedule_form.html', dentist=cur.fetchone(), user=current_user())
+        return render_template('dentist_schedule_form.html', dentist=cur.fetchone(), is_self=True, user=current_user())
 
     # Appointments
     @app.route('/staff/appointments')
     @require_role(['Staff'])
     def appointments_list():
-        cur = g.db.execute("SELECT a.app_id, p.pat_name, d.acc_name AS dentist_name, a.app_date, a.app_time, a.app_status FROM tbl_appointments a LEFT JOIN tbl_patients p ON a.pat_id=p.pat_id LEFT JOIN tbl_accounts d ON a.dentist_id=d.acc_id ORDER BY a.app_date, a.app_time")
+        cur = g.db.execute("SELECT a.app_id, p.pat_name, d.acc_name AS dentist_name, a.app_date, a.app_time, a.app_service, a.app_status FROM tbl_appointments a LEFT JOIN tbl_patients p ON a.pat_id=p.pat_id LEFT JOIN tbl_accounts d ON a.dentist_id=d.acc_id ORDER BY a.app_date, a.app_time")
         return render_template('appointments_list.html', apps=cur.fetchall(), user=current_user())
 
     @app.route('/staff/appointments/schedule', methods=['GET','POST'])
@@ -563,7 +628,8 @@ def create_app():
             pid = request.form.get('patient_id', type=int)
             did = request.form.get('dentist_id', type=int)
             app_date = request.form.get('app_date')
-            app_time_str = request.form.get('app_time')  # e.g., 14:30
+            app_time_str = request.form.get('app_time')
+            app_service = request.form.get('app_service','Dental Checkup')
 
             # Validate dentist working day and time
             den = g.db.execute("SELECT work_start, work_end, work_days FROM tbl_dentists WHERE dentist_id=?", (did,)).fetchone()
@@ -576,22 +642,37 @@ def create_app():
                 flash(f'Dentist does not work on {day_of_week}', 'error')
                 return redirect(url_for('appointment_schedule'))
 
+            # Check if appointment time is within dentist's working hours
+            app_time_obj = datetime.strptime(app_time_str, '%H:%M')
+            work_start_obj = datetime.strptime(den['work_start'], '%H:%M')
+            work_end_obj = datetime.strptime(den['work_end'], '%H:%M')
+            if not (work_start_obj <= app_time_obj < work_end_obj):
+                flash(f"Appointment time must be between {den['work_start']} and {den['work_end']}", 'error')
+                return redirect(url_for('appointment_schedule'))
+
             # Check conflicts
-            exists = g.db.execute("SELECT 1 FROM tbl_appointments WHERE dentist_id=? AND app_date=? AND app_time=? AND app_status='Scheduled'", (did, app_date, app_time_str)).fetchone()
+            exists = g.db.execute("SELECT 1 FROM tbl_appointments WHERE dentist_id=? AND app_date=? AND app_time=? AND app_status IN ('Pending','Approved','Scheduled','Confirmed')", (did, app_date, app_time_str)).fetchone()
             if exists:
                 flash('Slot already booked', 'error')
                 return redirect(url_for('appointment_schedule'))
 
-            g.db.execute("INSERT INTO tbl_appointments (pat_id, dentist_id, app_date, app_time, app_service, app_status) VALUES (?, ?, ?, ?, ?, 'Scheduled')",
-                         (pid, did, app_date, app_time_str, request.form.get('app_service','Dental Checkup')))
+            # Get service price
+            service_price = 500.00
+            service_row = g.db.execute("SELECT service_price FROM tbl_services WHERE service_name=?", (app_service,)).fetchone()
+            if service_row:
+                service_price = service_row['service_price']
+
+            g.db.execute("INSERT INTO tbl_appointments (pat_id, dentist_id, app_date, app_time, app_service, app_service_price, app_status, payment_status) VALUES (?, ?, ?, ?, ?, ?, 'Scheduled', 'Paid')",
+                         (pid, did, app_date, app_time_str, app_service, service_price))
             g.db.commit()
             log_action(current_user(), 'appointment_schedule', f"pat:{pid} dentist:{did} {app_date} {app_time_str}")
-            flash('Appointment scheduled', 'success')
+            flash('Appointment scheduled and sent to dentist.', 'success')
             return redirect(url_for('appointments_list'))
 
         patients = g.db.execute("SELECT pat_id, pat_name FROM tbl_patients ORDER BY pat_name").fetchall()
         dentists = g.db.execute("SELECT a.acc_id, a.acc_name FROM tbl_accounts a WHERE a.acc_role='Dentist' AND a.acc_status='Approved' ORDER BY a.acc_name").fetchall()
-        return render_template('appointment_schedule.html', patients=patients, dentists=dentists, user=current_user())
+        services = g.db.execute("SELECT service_name, service_price FROM tbl_services ORDER BY service_name").fetchall()
+        return render_template('appointment_schedule.html', patients=patients, dentists=dentists, services=services, user=current_user())
 
     @app.post('/staff/appointments/<int:aid>/cancel')
     @require_role(['Staff'])
@@ -607,14 +688,32 @@ def create_app():
         cur = g.db.execute("SELECT a.app_id, p.pat_name, p.pat_contact, d.acc_name AS dentist_name, a.app_date, a.app_time, a.app_service, a.app_status, a.payment_status FROM tbl_appointments a LEFT JOIN tbl_patients p ON a.pat_id=p.pat_id LEFT JOIN tbl_accounts d ON a.dentist_id=d.acc_id WHERE a.app_status='Pending' ORDER BY a.created_at DESC")
         return render_template('staff_bookings.html', bookings=cur.fetchall(), user=current_user())
 
+    @app.post('/staff/appointments/<int:aid>/approve')
+    @require_role(['Staff'])
+    def appointment_approve(aid):
+        g.db.execute("UPDATE tbl_appointments SET app_status='Scheduled' WHERE app_id=?", (aid,))
+        g.db.commit()
+        log_action(current_user(), 'appointment_approved', str(aid))
+        flash('Appointment approved and scheduled.', 'success')
+        return redirect(url_for('appointments_list'))
+
     @app.post('/staff/bookings/<int:aid>/approve')
     @require_role(['Staff'])
     def booking_approve(aid):
-        g.db.execute("UPDATE tbl_appointments SET app_status='Approved' WHERE app_id=?", (aid,))
+        g.db.execute("UPDATE tbl_appointments SET app_status='Scheduled' WHERE app_id=?", (aid,))
         g.db.commit()
         log_action(current_user(), 'booking_approved', str(aid))
-        flash('Booking approved successfully.', 'success')
+        flash('Booking approved and scheduled.', 'success')
         return redirect(url_for('staff_bookings'))
+
+    @app.post('/staff/appointments/<int:aid>/reject')
+    @require_role(['Staff'])
+    def appointment_reject(aid):
+        g.db.execute("UPDATE tbl_appointments SET app_status='Cancelled' WHERE app_id=?", (aid,))
+        g.db.commit()
+        log_action(current_user(), 'appointment_rejected', str(aid))
+        flash('Appointment rejected.', 'success')
+        return redirect(url_for('appointments_list'))
 
     @app.post('/staff/bookings/<int:aid>/reject')
     @require_role(['Staff'])
@@ -667,7 +766,7 @@ def create_app():
     @require_role(['Dentist'])
     def dentist_dashboard():
         did = current_user()['acc_id']
-        cur = g.db.execute("SELECT a.app_id, p.pat_name, a.app_date, a.app_time, a.app_service, a.app_status FROM tbl_appointments a JOIN tbl_patients p ON a.pat_id = p.pat_id WHERE a.dentist_id=? AND a.app_status IN ('Scheduled', 'Confirmed') ORDER BY a.app_date, a.app_time", (did,))
+        cur = g.db.execute("SELECT a.app_id, p.pat_name, a.app_date, a.app_time, a.app_service, a.app_status FROM tbl_appointments a JOIN tbl_patients p ON a.pat_id = p.pat_id WHERE a.dentist_id=? AND a.app_status IN ('Approved', 'Scheduled', 'Confirmed') ORDER BY a.app_date, a.app_time", (did,))
         return render_template('dashboard_dentist.html', apps=cur.fetchall(), user=current_user())
 
     @app.post('/dentist/complete')

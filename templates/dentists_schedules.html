@@ -1,23 +1,49 @@
 {% extends 'base.html' %}
 {% block title %}Dentist Schedules · DentalCare{% endblock %}
 {% block content %}
+<section class="hero"><div class="hero-bg"></div></section>
 <div class="container">
-  <h1>Dentist Schedules</h1>
-  <table class="table">
-    <thead><tr><th>ID</th><th>Name</th><th>Specialty</th><th>Start</th><th>End</th><th>Work Days</th><th>Actions</th></tr></thead>
-    <tbody>
-      {% for d in dentists %}
-      <tr>
-        <td>{{ d.acc_id }}</td>
-        <td>{{ d.acc_name }}</td>
-        <td>{{ d.specialty or 'Not set' }}</td>
-        <td>{{ d.work_start or '-' }}</td>
-        <td>{{ d.work_end or '-' }}</td>
-        <td>{{ d.work_days or '-' }}</td>
-        <td><a class="btn btn-outline" href="/staff/dentists/{{ d.acc_id }}/schedule">Edit</a></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  {% for m in get_flashed_messages(with_categories=true) %}
+    <div class="flash {{ m[0] }}">{{ m[1] }}</div>
+  {% endfor %}
+
+  <div class="admin-hero" style="margin-bottom: 2rem;">
+    <span class="badge">View Only</span>
+    <h1 class="strong" style="margin: 0;">Dentist Schedules</h1>
+  </div>
+
+  {% if dentists %}
+  <div style="max-height: 700px; overflow-y: auto;">
+    <table class="table glass">
+      <thead style="position: sticky; top: 0; z-index: 10;">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Specialty</th>
+          <th>Start Time</th>
+          <th>End Time</th>
+          <th>Work Days</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in dentists %}
+        <tr>
+          <td><strong>{{ d.acc_id }}</strong></td>
+          <td>{{ d.acc_name }}</td>
+          <td>{{ d.specialty or '—' }}</td>
+          <td>{{ d.work_start or '—' }}</td>
+          <td>{{ d.work_end or '—' }}</td>
+          <td style="font-size: 0.9rem;">{{ d.work_days or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div style="text-align: center; padding: 3rem; color: var(--muted);">
+      <p style="font-size: 1.1rem; margin-bottom: 1rem;">📭 No dentists found</p>
+      <p>Dentists can manage their own duty schedules in their profile.</p>
+    </div>
+  {% endif %}
 </div>
 {% endblock %}

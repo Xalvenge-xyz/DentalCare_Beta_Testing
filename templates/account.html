@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}My Account · DentalCare{% endblock %}
 {% block content %}
+<section class="hero"><div class="hero-bg"></div></section>
 <div class="container">
   {% for m in get_flashed_messages(with_categories=true) %}
     <div class="flash {{ m[0] }}">{{ m[1] }}</div>

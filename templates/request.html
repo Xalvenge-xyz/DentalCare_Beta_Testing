@@ -8,19 +8,17 @@
     <div class="flash {{ m[0] }}">{{ m[1] }}</div>
   {% endfor %}
   <form method="post" class="form">
-    <h2>Patient Information</h2>
-    <label>Full name<input name="name" type="fname" value="{{ (form and form.name) or '' }}" required></label>
-    <label>Contact<input name="contact" type="contact" value="{{ (form and form.contact) or '' }}" placeholder="+63 900 000 0000" required></label>
+    <label>Full name<input name="name" value="{{ (form and form.name) or '' }}" required></label>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
-      <label>Age<input type="number" type="age" min="0" name="age" value="{{ (form and form.age) or '' }}" required></label>
-       <label>Sex
+      <label>Contact<input name="contact" value="{{ (form and form.contact) or '' }}" placeholder="+63 900 000 0000" required></label>
+      <label>Age<input type="number" min="0" name="age" value="{{ (form and form.age) or '' }}" required></label>
+    </div>
+    <label>Sex
       <select name="sex">
-        <option value="M">Male</option>
-        <option value="F">Famale</option>
+        <option value="M">M</option>
+        <option value="F">F</option>
       </select>
     </label>
-    </div>
-    
     <label>Address<input name="address" value="{{ (form and form.address) or '' }}" required></label>
     <button class="btn btn-primary" type="submit">Submit request</button>
     <a class="btn" href="/">Cancel</a>

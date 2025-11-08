@@ -9,16 +9,16 @@
 <body>
   <header class="site-header">
     <div class="container nav">
-      <a href="/" class="brand"><span class="logo">🦷</span><span>DentalCare</span></a>  
+      <a href="/" class="brand"><span class="logo">DC</span><span>DentalCare</span></a>
       <nav>
         <a href="/">Home</a>
         <a href="/about">About</a>
         {% if user %}
           <a href="/portal">Portal</a>
           <a href="/account">My Account</a>
-          <a href="/logout"  class="btn">Logout</a>
+          <a href="/logout">Logout</a>
         {% else %}
-          <a href="/login" class="btn">Login</a>
+          <a href="/login">Login</a>
           <a href="/register" class="btn">Register</a>
         {% endif %}
       </nav>

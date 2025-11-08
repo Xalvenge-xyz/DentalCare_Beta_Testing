@@ -8,7 +8,11 @@
   {% endfor %}
 
   <div class="admin-hero" style="margin-bottom: 2rem;">
-    <span class="badge">Guest Booking</span>
+    {% if user and user.acc_role == 'Customer' %}
+      <span class="badge" style="background: rgba(34, 197, 94, 0.2); color: var(--success);">New Appointment</span>
+    {% else %}
+      <span class="badge">Guest Booking</span>
+    {% endif %}
     <h1 class="strong" style="margin: 0;">Schedule Your Visit</h1>
   </div>
 
@@ -20,12 +24,12 @@
           <h3 style="margin-top: 0; color: var(--fg);">Your Information</h3>
 
           <label>Full Name
-            <input name="name" placeholder="John Doe" required>
+            <input name="name" placeholder="John Doe" required {% if customer_info %}value="{{ customer_info.name }}" readonly style="background: rgba(255, 255, 255, 0.5); cursor: not-allowed;"{% endif %}>
           </label>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <label>Contact
-              <input name="contact" type="tel" placeholder="(555) 000-0000" required>
+              <input name="contact" type="tel" placeholder="(555) 000-0000" required {% if customer_info %}value="{{ customer_info.contact }}" readonly style="background: rgba(255, 255, 255, 0.5); cursor: not-allowed;"{% endif %}>
             </label>
             <label>Age
               <input type="number" name="age" min="1" max="150" placeholder="Age" required>
@@ -135,7 +139,7 @@
       try {
         const response = await fetch(`/api/available-times/${dentistSelect.value}/${dateInput.value}`);
         const data = await response.json();
-        
+
         timeSelect.innerHTML = '<option value="">Select a time...</option>';
         if (data.times.length === 0) {
           timeSelect.innerHTML += '<option disabled>No available times</option>';
@@ -154,6 +158,30 @@
       } catch (error) {
         console.error('Error loading times:', error);
         timeSelect.innerHTML = '<option>Error loading times</option>';
+      }
+    }
+
+    async function loadServicesByDentist() {
+      if (!dentistSelect.value) {
+        serviceSelect.innerHTML = '<option value="">Select dentist first...</option>';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/services/${dentistSelect.value}`);
+        const data = await response.json();
+
+        serviceSelect.innerHTML = '<option value="">Select service...</option>';
+        data.services.forEach(service => {
+          const option = document.createElement('option');
+          option.value = service.service_name;
+          option.setAttribute('data-price', service.service_price);
+          option.textContent = `${service.service_name} - ₱${parseFloat(service.service_price).toFixed(2)}`;
+          serviceSelect.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error loading services:', error);
+        serviceSelect.innerHTML = '<option>Error loading services</option>';
       }
     }
 
@@ -189,6 +217,7 @@
     nameInput.addEventListener('input', updateSummary);
     dentistSelect.addEventListener('change', () => {
       loadAvailableTimes();
+      loadServicesByDentist();
       updateSummary();
     });
     dateInput.addEventListener('change', () => {
@@ -198,6 +227,7 @@
     timeSelect.addEventListener('change', updateSummary);
     serviceSelect.addEventListener('change', updateSummary);
 
+    // Call updateSummary on page load to show pre-filled customer info
     updateSummary();
   </script>
 </div>

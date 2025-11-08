@@ -1,30 +1,85 @@
 {% extends 'base.html' %}
 {% block title %}Appointments · DentalCare{% endblock %}
 {% block content %}
+<section class="hero"><div class="hero-bg"></div></section>
 <div class="container">
-  <h1>Appointments</h1>
-  <p><a class="btn btn-primary" href="/staff/appointments/schedule">Schedule New</a></p>
-  <table class="table glass">
-    <thead><tr><th>ID</th><th>Patient</th><th>Dentist</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr></thead>
-    <tbody>
-      {% for a in apps %}
-      <tr>
-        <td>{{ a.app_id }}</td>
-        <td>{{ a.pat_name }}</td>
-        <td>{{ a.dentist_name }}</td>
-        <td>{{ a.app_date }}</td>
-        <td>{{ a.app_time }}</td>
-        <td>{{ a.app_status }}</td>
-        <td>
-          {% if a.app_status == 'Scheduled' %}
-          <form method="post" action="/staff/appointments/{{ a.app_id }}/cancel" class="inline" onsubmit="return confirm('Cancel this appointment?')">
-            <button class="btn btn-danger" type="submit">Cancel</button>
-          </form>
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  {% for m in get_flashed_messages(with_categories=true) %}
+    <div class="flash {{ m[0] }}">{{ m[1] }}</div>
+  {% endfor %}
+
+  <div class="admin-hero" style="margin-bottom: 2rem;">
+    <span class="badge">Management</span>
+    <h1 class="strong" style="margin: 0;">Staff Appointments</h1>
+  </div>
+
+  <p><a class="btn btn-primary" href="/staff/appointments/schedule">+ Schedule New</a></p>
+
+  {% if apps %}
+  <div style="max-height: 700px; overflow-y: auto;">
+    <table class="table glass">
+      <thead style="position: sticky; top: 0; z-index: 10;">
+        <tr>
+          <th>ID</th>
+          <th>Patient</th>
+          <th>Dentist</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Service</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in apps %}
+        <tr>
+          <td><strong>{{ a.app_id }}</strong></td>
+          <td>{{ a.pat_name }}</td>
+          <td>{{ a.dentist_name }}</td>
+          <td>{{ a.app_date }}</td>
+          <td>{{ a.app_time }}</td>
+          <td>{{ a.app_service }}</td>
+          <td>
+            {% if a.app_status == 'Pending' %}
+              <span class="chip" style="background: rgba(250, 204, 21, 0.15); color: #ca8a04;">⏳ Pending</span>
+            {% elif a.app_status == 'Approved' %}
+              <span class="chip" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">✓ Approved</span>
+            {% elif a.app_status == 'Scheduled' %}
+              <span class="chip" style="background: rgba(59, 130, 246, 0.15); color: var(--primary);">📅 Scheduled</span>
+            {% elif a.app_status == 'Completed' %}
+              <span class="chip" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">✓ Completed</span>
+            {% else %}
+              <span class="chip" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);">{{ a.app_status }}</span>
+            {% endif %}
+          </td>
+          <td>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              {% if a.app_status == 'Pending' %}
+              <form method="post" action="/staff/appointments/{{ a.app_id }}/approve" style="display: inline;">
+                <button class="btn btn-primary" type="submit" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">Approve</button>
+              </form>
+              <form method="post" action="/staff/appointments/{{ a.app_id }}/reject" style="display: inline;" onsubmit="return confirm('Reject this appointment?')">
+                <button class="btn btn-danger" type="submit" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">Reject</button>
+              </form>
+              {% elif a.app_status == 'Scheduled' %}
+              <form method="post" action="/staff/appointments/{{ a.app_id }}/cancel" style="display: inline;" onsubmit="return confirm('Cancel this appointment?')">
+                <button class="btn btn-danger" type="submit" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">Cancel</button>
+              </form>
+              {% else %}
+              <span style="color: var(--muted); font-size: 0.85rem;">—</span>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div style="text-align: center; padding: 3rem; color: var(--muted);">
+      <p style="font-size: 1.1rem; margin-bottom: 1rem;">✓ No appointments</p>
+      <p>All appointments have been managed or you haven't scheduled any yet.</p>
+      <p><a href="/staff/appointments/schedule" style="color: var(--primary); text-decoration: none; font-weight: 600;">Schedule an appointment</a></p>
+    </div>
+  {% endif %}
 </div>
 {% endblock %}

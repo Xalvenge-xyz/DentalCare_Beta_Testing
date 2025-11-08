@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS tbl_dentists (
 CREATE TABLE IF NOT EXISTS tbl_services (
   service_id INTEGER PRIMARY KEY AUTOINCREMENT,
   service_name TEXT NOT NULL UNIQUE,
-  service_price REAL NOT NULL DEFAULT 50.00
+  service_price REAL NOT NULL DEFAULT 50.00,
+  service_specialty TEXT DEFAULT 'General Dentistry'
 );
 
 CREATE TABLE IF NOT EXISTS tbl_appointments (
@@ -64,10 +65,31 @@ CREATE TABLE IF NOT EXISTS tbl_logs (
 );
 
 -- Insert default services if they don't exist
-INSERT OR IGNORE INTO tbl_services (service_name, service_price) VALUES
-  ('Dental Checkup', 500.00),
-  ('Cleaning', 750.00),
-  ('Filling', 1200.00),
-  ('Root Canal', 3500.00),
-  ('Extraction', 1500.00),
-  ('Other', 500.00);
+INSERT OR IGNORE INTO tbl_services (service_name, service_price, service_specialty) VALUES
+  ('Dental Checkup', 500.00, 'General Dentistry'),
+  ('Cleaning', 750.00, 'General Dentistry'),
+  ('Filling', 1200.00, 'General Dentistry'),
+  ('Other', 500.00, 'General Dentistry'),
+  ('Root Canal', 3500.00, 'Endodontics'),
+  ('Extraction', 1500.00, 'Oral Surgery'),
+  ('Wisdom Tooth Removal', 2500.00, 'Oral Surgery'),
+  ('Bone Grafting', 4000.00, 'Oral Surgery'),
+  ('Braces', 15000.00, 'Orthodontics'),
+  ('Clear Aligners', 18000.00, 'Orthodontics'),
+  ('Retainers', 3000.00, 'Orthodontics'),
+  ('Scaling and Root Planing', 2000.00, 'Periodontics'),
+  ('Gum Graft', 3500.00, 'Periodontics'),
+  ('Periodontal Surgery', 4500.00, 'Periodontics'),
+  ('Dental Crown', 5000.00, 'Prosthodontics'),
+  ('Bridge', 8000.00, 'Prosthodontics'),
+  ('Complete Dentures', 12000.00, 'Prosthodontics'),
+  ('Partial Dentures', 8000.00, 'Prosthodontics'),
+  ('Dental Implant', 25000.00, 'Implantology'),
+  ('Implant Restoration', 8000.00, 'Implantology'),
+  ('Teeth Whitening', 3000.00, 'Cosmetic Dentistry'),
+  ('Veneers', 10000.00, 'Cosmetic Dentistry'),
+  ('Composite Bonding', 2000.00, 'Cosmetic Dentistry'),
+  ('Dental Sealants', 800.00, 'Pediatric Dentistry'),
+  ('Fluoride Treatment', 500.00, 'Pediatric Dentistry'),
+  ('Pulpotomy', 2000.00, 'Pediatric Dentistry'),
+  ('Space Maintainer', 1500.00, 'Pediatric Dentistry');

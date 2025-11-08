@@ -1,30 +1,210 @@
 {% extends 'base.html' %}
 {% block title %}Schedule Appointment · DentalCare{% endblock %}
 {% block content %}
-<div class="container narrow">
-  <h1>Schedule Appointment</h1>
+<section class="hero"><div class="hero-bg"></div></section>
+<div class="container">
   {% for m in get_flashed_messages(with_categories=true) %}
     <div class="flash {{ m[0] }}">{{ m[1] }}</div>
   {% endfor %}
-  <form method="post" class="form">
-    <label>Patient
-      <select name="patient_id">
-        {% for p in patients %}
-          <option value="{{ p.pat_id }}">{{ p.pat_name }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>Dentist
-      <select name="dentist_id">
-        {% for d in dentists %}
-          <option value="{{ d.acc_id }}">{{ d.acc_name }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>Date<input type="date" name="app_date" required></label>
-    <label>Time (HH:MM)<input type="time" name="app_time" required></label>
-    <label>Service<input name="app_service" placeholder="Dental Checkup"></label>
-    <button class="btn btn-primary" type="submit">Schedule</button>
-  </form>
+
+  <div class="admin-hero" style="margin-bottom: 2rem;">
+    <span class="badge">Staff Scheduling</span>
+    <h1 class="strong" style="margin: 0;">Schedule Patient Appointment</h1>
+  </div>
+
+  <div style="max-width: 820px; margin: 0 auto;">
+    <form method="post" class="form glass" style="padding: 2.5rem;">
+      <div class="grid2" style="gap: 2rem;">
+        <!-- Left Column: Form Fields -->
+        <div>
+          <h3 style="margin-top: 0; color: var(--fg);">Patient Information</h3>
+
+          <label>Select Patient
+            <select name="patient_id" id="patient-select" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
+              <option value="">Choose a patient...</option>
+              {% for p in patients %}
+              <option value="{{ p.pat_id }}" {% if p.pat_id in scheduled_patient_ids %}disabled title="Patient already has an active appointment"{% endif %}>
+                {{ p.pat_name }}
+                {% if p.pat_id in scheduled_patient_ids %}<span style="color: #999;"> (Already scheduled)</span>{% endif %}
+              </option>
+              {% endfor %}
+            </select>
+          </label>
+
+          <h3 style="margin-top: 2rem; color: var(--fg);">Appointment Details</h3>
+
+          <label>Select Dentist
+            <select name="dentist_id" id="dentist-select" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
+              <option value="">Choose a dentist...</option>
+              {% for d in dentists %}
+              <option value="{{ d.acc_id }}">{{ d.acc_name }}</option>
+              {% endfor %}
+            </select>
+          </label>
+
+          <label>Preferred Date
+            <input type="date" name="app_date" id="app-date" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
+          </label>
+
+          <label>Select Time
+            <select name="app_time" id="time-select" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
+              <option value="">Select dentist & date first...</option>
+            </select>
+          </label>
+
+          <label>Service Type
+            <select name="app_service" id="service-select" required style="padding: 0.8rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.85); font-size: 1rem;">
+              <option value="">Select service...</option>
+              {% for s in services %}
+              <option value="{{ s.service_name }}">{{ s.service_name }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        </div>
+
+        <!-- Right Column: Summary & CTA -->
+        <div>
+          <div style="position: sticky; top: 100px;">
+            <div class="panel" style="background: linear-gradient(135deg, rgba(0, 167, 167, 0.1), rgba(18, 130, 255, 0.08)); border: 1px solid rgba(0, 167, 167, 0.2); margin-bottom: 1.5rem;">
+              <h3 style="margin-top: 0; color: var(--fg);">Appointment Summary</h3>
+
+              <div style="display: grid; gap: 1rem; color: var(--muted); font-size: 0.95rem;">
+                <div style="padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 0.5rem;">
+                  <p style="margin: 0 0 0.25rem; font-size: 0.8rem; color: var(--muted);">Patient</p>
+                  <p id="summary-patient" style="margin: 0; font-weight: 600; color: var(--fg);">—</p>
+                </div>
+
+                <div style="padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 0.5rem;">
+                  <p style="margin: 0 0 0.25rem; font-size: 0.8rem; color: var(--muted);">Dentist</p>
+                  <p id="summary-dentist" style="margin: 0; font-weight: 600; color: var(--fg);">—</p>
+                </div>
+
+                <div style="padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 0.5rem;">
+                  <p style="margin: 0 0 0.25rem; font-size: 0.8rem; color: var(--muted);">Date & Time</p>
+                  <p id="summary-datetime" style="margin: 0; font-weight: 600; color: var(--fg);">—</p>
+                </div>
+
+                <div style="padding: 0.75rem; background: rgba(255, 255, 255, 0.5); border-radius: 0.5rem;">
+                  <p style="margin: 0 0 0.25rem; font-size: 0.8rem; color: var(--muted);">Service</p>
+                  <p id="summary-service" style="margin: 0; font-weight: 600; color: var(--fg);">—</p>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" type="submit" style="width: 100%;">Schedule Appointment</button>
+
+            <p style="text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 1rem;">
+              <a href="/staff/appointments" style="color: var(--primary); text-decoration: none;">← Back to appointments</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const patientSelect = document.getElementById('patient-select');
+    const dentistSelect = document.getElementById('dentist-select');
+    const dateInput = document.getElementById('app-date');
+    const timeSelect = document.getElementById('time-select');
+    const serviceSelect = document.getElementById('service-select');
+
+    const summaryPatient = document.getElementById('summary-patient');
+    const summaryDentist = document.getElementById('summary-dentist');
+    const summaryDateTime = document.getElementById('summary-datetime');
+    const summaryService = document.getElementById('summary-service');
+
+    async function loadAvailableTimes() {
+      if (!dentistSelect.value || !dateInput.value) {
+        timeSelect.innerHTML = '<option value="">Select dentist & date first...</option>';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/available-times/${dentistSelect.value}/${dateInput.value}`);
+        const data = await response.json();
+
+        timeSelect.innerHTML = '<option value="">Select a time...</option>';
+        if (data.times.length === 0) {
+          timeSelect.innerHTML += '<option disabled>No available times</option>';
+        } else {
+          data.times.forEach(time => {
+            const [hours, mins] = time.split(':');
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12;
+            const displayTime = `${displayHours.toString().padStart(2, '0')}:${mins} ${period}`;
+            const option = document.createElement('option');
+            option.value = time;
+            option.textContent = displayTime;
+            timeSelect.appendChild(option);
+          });
+        }
+      } catch (error) {
+        console.error('Error loading times:', error);
+        timeSelect.innerHTML = '<option>Error loading times</option>';
+      }
+    }
+
+    async function loadServicesByDentist() {
+      if (!dentistSelect.value) {
+        serviceSelect.innerHTML = '<option value="">Select dentist first...</option>';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/services/${dentistSelect.value}`);
+        const data = await response.json();
+
+        serviceSelect.innerHTML = '<option value="">Select service...</option>';
+        data.services.forEach(service => {
+          const option = document.createElement('option');
+          option.value = service.service_name;
+          option.textContent = service.service_name;
+          serviceSelect.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error loading services:', error);
+        serviceSelect.innerHTML = '<option>Error loading services</option>';
+      }
+    }
+
+    const updateSummary = () => {
+      const patientOption = patientSelect.options[patientSelect.selectedIndex];
+      summaryPatient.textContent = patientOption.value ? patientOption.text : '—';
+
+      const dentistOption = dentistSelect.options[dentistSelect.selectedIndex];
+      summaryDentist.textContent = dentistOption.value ? dentistOption.text : '—';
+
+      if (dateInput.value && timeSelect.value) {
+        const date = new Date(dateInput.value);
+        const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        const [hours, mins] = timeSelect.value.split(':');
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours % 12 || 12;
+        const timeStr = `${displayHours.toString().padStart(2, '0')}:${mins} ${period}`;
+        summaryDateTime.textContent = `${dateStr}, ${timeStr}`;
+      } else {
+        summaryDateTime.textContent = '—';
+      }
+
+      const serviceOption = serviceSelect.options[serviceSelect.selectedIndex];
+      summaryService.textContent = serviceOption.value ? serviceOption.text : '—';
+    };
+
+    patientSelect.addEventListener('change', updateSummary);
+    dentistSelect.addEventListener('change', () => {
+      loadAvailableTimes();
+      loadServicesByDentist();
+      updateSummary();
+    });
+    dateInput.addEventListener('change', () => {
+      loadAvailableTimes();
+      updateSummary();
+    });
+    timeSelect.addEventListener('change', updateSummary);
+    serviceSelect.addEventListener('change', updateSummary);
+
+    updateSummary();
+  </script>
 </div>
 {% endblock %}
