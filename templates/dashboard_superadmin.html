@@ -51,4 +51,14 @@
     </a>
   </div>
 
+<!-- comment this if you dont want a reset all data -->
+
+  <div style="margin-top: 3rem; padding: 2rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 1rem;">
+    <h3 style="color: var(--danger); margin-top: 0;">⚠️ Danger Zone</h3>
+    <p class="muted" style="margin: 0.5rem 0;">Resetting all data will permanently delete all accounts (except Super Admin), patients, dentists, and appointments. This action cannot be undone.</p>
+    <form method="post" action="/super-admin/reset" onsubmit="return confirm('This will delete ALL data except Super Admin. Continue?')" style="margin-top: 1rem;">
+      <button class="btn btn-danger" type="submit">Reset All Data</button>
+    </form>
+  </div>
+</div>
 {% endblock %}

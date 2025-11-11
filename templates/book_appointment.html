@@ -29,7 +29,7 @@
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <label>Contact
-              <input name="contact" type="tel" placeholder="(555) 000-0000" required {% if customer_info %}value="{{ customer_info.contact }}" readonly style="background: rgba(255, 255, 255, 0.5); cursor: not-allowed;"{% endif %}>
+              <input name="contact" type="tel" placeholder="(+63)000 000-0000" required {% if customer_info %}value="{{ customer_info.contact }}" readonly style="background: rgba(255, 255, 255, 0.5); cursor: not-allowed;"{% endif %}>
             </label>
             <label>Age
               <input type="number" name="age" min="1" max="150" placeholder="Age" required>
